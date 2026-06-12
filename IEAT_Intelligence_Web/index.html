@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="IEAT Daily Intelligence executive briefing dashboard">
+  <title>IEAT Intelligence</title>
+  <link rel="stylesheet" href="./style.css?v=5">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button id="menu-toggle" class="icon-button" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="app-menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h10"></path>
+        </svg>
+      </button>
+
+      <div class="brand">
+        <p class="brand-title">IEAT Intelligence</p>
+        <p class="brand-subtitle">EXECUTIVE BRIEFING</p>
+      </div>
+
+      <span class="header-spacer" aria-hidden="true"></span>
+    </header>
+
+    <div id="menu-backdrop" class="menu-backdrop" hidden></div>
+    <aside id="app-menu" class="app-menu" aria-label="เมนูข่าว" aria-hidden="true" hidden>
+      <div class="menu-header">
+        <div>
+          <p>IEAT Intelligence</p>
+          <span>EXECUTIVE BRIEFING</span>
+        </div>
+        <button id="menu-close" class="menu-close" type="button" aria-label="ปิดเมนู">×</button>
+      </div>
+      <nav class="drawer-nav" aria-label="ทางลัด">
+        <button type="button" data-menu-action="today">ข่าววันนี้</button>
+        <p class="drawer-label">ตาม category</p>
+        <div class="drawer-categories">
+          <button type="button" data-menu-category="Energy">Energy</button>
+          <button type="button" data-menu-category="Supply Chain">Supply Chain</button>
+          <button type="button" data-menu-category="Technology & Digital Infrastructure">Technology &amp; Digital Infrastructure</button>
+          <button type="button" data-menu-category="Public Health & Biosecurity">Public Health &amp; Biosecurity</button>
+        </div>
+        <button type="button" data-menu-action="watchpoint">Watchpoint Today</button>
+      </nav>
+    </aside>
+
+    <main>
+      <div id="home-view">
+      <section class="hero" aria-labelledby="brief-title">
+        <time id="report-date" datetime="">กำลังโหลดข้อมูล...</time>
+        <h1 id="brief-title">Daily Intelligence Brief</h1>
+        <p id="executive-summary" class="executive-summary">
+          กำลังจัดเตรียมบทสรุปสำหรับผู้บริหาร
+        </p>
+      </section>
+
+      <section class="content-section" aria-labelledby="risk-heading">
+        <div class="section-heading">
+          <h2 id="risk-heading">Risk Overview by Category</h2>
+          <span class="section-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 11v5M12 8h.01"></path>
+            </svg>
+            เทียบกับเมื่อวาน
+          </span>
+        </div>
+        <div id="risk-overview" class="risk-list" aria-live="polite">
+          <div class="loading-card">กำลังโหลดภาพรวมความเสี่ยง...</div>
+        </div>
+      </section>
+
+      <section class="content-section" aria-labelledby="headlines-heading">
+        <div class="section-heading">
+          <h2 id="headlines-heading">Top Headlines – วันนี้</h2>
+          <button id="view-all-headlines" class="section-link" type="button">
+            ดูทั้งหมด <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <ol id="headlines-list" class="headline-list" aria-live="polite">
+          <li class="loading-card">กำลังโหลดประเด็นสำคัญ...</li>
+        </ol>
+      </section>
+
+      <section class="content-section watchpoint-section" aria-labelledby="watchpoint-heading">
+        <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
+          <div class="watchpoint-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+              <circle cx="12" cy="12" r="2.5"></circle>
+            </svg>
+          </div>
+          <div>
+            <p class="section-kicker">WATCHPOINT TODAY</p>
+            <h2 id="watchpoint-heading">Watchpoint Today</h2>
+            <p id="watchpoint-text">กำลังโหลดประเด็นที่ต้องติดตาม...</p>
+          </div>
+          <span class="card-chevron" aria-hidden="true">›</span>
+        </article>
+      </section>
+
+      <div id="data-error" class="error-message" role="status" hidden>
+        ไม่สามารถโหลดข้อมูลล่าสุดได้ กรุณาตรวจสอบไฟล์ data/latest.json
+      </div>
+      </div>
+
+      <section id="category-view" class="category-view" aria-labelledby="category-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="category-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+
+        <header class="category-hero">
+          <div id="category-detail-icon"></div>
+          <div class="category-hero-copy">
+            <p class="section-kicker">CATEGORY INTELLIGENCE</p>
+            <h1 id="category-detail-title">Category</h1>
+            <p id="category-detail-subtitle">รายละเอียดหมวดหมู่</p>
+          </div>
+          <div class="category-detail-risk">
+            <span id="category-detail-direction" class="direction direction-unknown">Unknown</span>
+            <span id="category-detail-badge" class="risk-badge risk-medium">Medium</span>
+          </div>
+        </header>
+
+        <section class="detail-news-section" aria-labelledby="category-news-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">7-DAY NEWS ARCHIVE</p>
+              <h2 id="category-news-heading">ข่าวย้อนหลัง 7 วันล่าสุด</h2>
+            </div>
+            <span id="category-news-count" class="count-pill">0</span>
+          </div>
+          <div id="category-news-list" class="category-news-list" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <section id="today-headlines-view" class="subpage-view" aria-labelledby="today-headlines-title" hidden>
+        <div class="detail-toolbar">
+          <button id="today-headlines-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header">
+          <p class="section-kicker">TODAY'S INTELLIGENCE</p>
+          <h1 id="today-headlines-title">ข่าวทั้งหมดวันนี้</h1>
+          <p id="today-headlines-date">กำลังโหลดข้อมูล...</p>
+        </header>
+        <div id="today-headlines-list" class="today-headlines-list" aria-live="polite"></div>
+      </section>
+
+      <article id="news-detail-view" class="subpage-view news-article-view" aria-labelledby="news-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="news-detail-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>ย้อนกลับ</span>
+          </button>
+        </div>
+        <div id="news-detail-content"></div>
+      </article>
+
+      <section id="watchlist-view" class="subpage-view" aria-labelledby="watchlist-title" hidden>
+        <div class="detail-toolbar">
+          <button id="watchlist-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header">
+          <p class="section-kicker">EXECUTIVE WATCHLIST</p>
+          <h1 id="watchlist-title">Watchpoint Today</h1>
+          <p>ประเด็นที่ควรติดตามจากรายงานล่าสุดและย้อนหลัง 7 วัน</p>
+        </header>
+        <div id="watchlist-items" class="watchlist-items" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="เมนูหลัก">
+      <button id="nav-home" class="nav-item active" type="button" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m3 11 9-8 9 8"></path>
+          <path d="M5 10v10h14V10M9 20v-6h6v6"></path>
+        </svg>
+        <span>หน้าหลัก</span>
+      </button>
+      <a class="nav-item" href="https://ieat-daily-brief.pages.dev/">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 3h12v18l-6-3-6 3V3Z"></path>
+        </svg>
+        <span>Reports</span>
+      </a>
+      <button id="nav-watchlist" class="nav-item" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+        </svg>
+        <span>Watchlist</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="./app.js?v=8" defer></script>
+</body>
+</html>
