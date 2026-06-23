@@ -39,9 +39,15 @@
         <p class="drawer-label">ตาม category</p>
         <div class="drawer-categories">
           <button type="button" data-menu-category="Energy">Energy</button>
-          <button type="button" data-menu-category="Supply Chain">Supply Chain</button>
-          <button type="button" data-menu-category="Technology & Digital Infrastructure">Technology &amp; Digital Infrastructure</button>
-          <button type="button" data-menu-category="Public Health & Biosecurity">Public Health &amp; Biosecurity</button>
+          <button type="button" data-menu-category="Supply Chain and Logistics">Supply Chain and Logistics</button>
+          <button type="button" data-menu-category="Technology and Digital Infrastructure">Technology and Digital Infrastructure</button>
+          <button type="button" data-menu-category="Public Health and Biosecurity">Public Health and Biosecurity</button>
+          <button type="button" data-menu-category="Geopolitics and Trade">Geopolitics and Trade</button>
+          <button type="button" data-menu-category="Policy and Regulation">Policy and Regulation</button>
+          <button type="button" data-menu-category="Environment and Sustainability">Environment and Sustainability</button>
+          <button type="button" data-menu-category="Investment and FDI">Investment and FDI</button>
+          <button type="button" data-menu-category="Labor and Human Capital">Labor and Human Capital</button>
+          <button type="button" data-menu-category="Competitive Landscape">Competitive Landscape</button>
         </div>
         <button type="button" data-menu-action="watchpoint">Watchpoint Today</button>
       </nav>
@@ -55,6 +61,18 @@
         <p id="executive-summary" class="executive-summary">
           กำลังจัดเตรียมบทสรุปสำหรับผู้บริหาร
         </p>
+      </section>
+
+      <section class="content-section" aria-labelledby="headlines-heading">
+        <div class="section-heading">
+          <h2 id="headlines-heading">Top Headlines – วันนี้</h2>
+          <button id="view-all-headlines" class="section-link" type="button">
+            ดูทั้งหมด <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <ol id="headlines-list" class="headline-list" aria-live="polite">
+          <li class="loading-card">กำลังโหลดประเด็นสำคัญ...</li>
+        </ol>
       </section>
 
       <section class="content-section" aria-labelledby="risk-heading">
@@ -71,18 +89,6 @@
         <div id="risk-overview" class="risk-list" aria-live="polite">
           <div class="loading-card">กำลังโหลดภาพรวมความเสี่ยง...</div>
         </div>
-      </section>
-
-      <section class="content-section" aria-labelledby="headlines-heading">
-        <div class="section-heading">
-          <h2 id="headlines-heading">Top Headlines – วันนี้</h2>
-          <button id="view-all-headlines" class="section-link" type="button">
-            ดูทั้งหมด <span aria-hidden="true">→</span>
-          </button>
-        </div>
-        <ol id="headlines-list" class="headline-list" aria-live="polite">
-          <li class="loading-card">กำลังโหลดประเด็นสำคัญ...</li>
-        </ol>
       </section>
 
       <section class="content-section watchpoint-section" aria-labelledby="watchpoint-heading">

@@ -1,27 +1,29 @@
 const DATA_URL = "./data/latest.json";
 
-const VALID_CATEGORIES = new Set([
-  "Geopolitics",
+const CATEGORY_ORDER = [
   "Energy",
-  "Supply Chain",
-  "Technology & Digital Infrastructure",
-  "Public Health & Biosecurity"
-]);
-
-const HOME_CATEGORY_ORDER = [
-  "Energy",
-  "Supply Chain",
-  "Technology & Digital Infrastructure",
-  "Public Health & Biosecurity"
+  "Supply Chain and Logistics",
+  "Technology and Digital Infrastructure",
+  "Public Health and Biosecurity",
+  "Geopolitics and Trade",
+  "Policy and Regulation",
+  "Environment and Sustainability",
+  "Investment and FDI",
+  "Labor and Human Capital",
+  "Competitive Landscape"
 ];
 
-const WATCHLIST_CATEGORY_ORDER = [
-  "Energy",
-  "Supply Chain",
-  "Technology & Digital Infrastructure",
-  "Public Health & Biosecurity",
-  "Geopolitics"
-];
+const VALID_CATEGORIES = new Set(CATEGORY_ORDER);
+const HOME_CATEGORY_ORDER = [...CATEGORY_ORDER];
+const WATCHLIST_CATEGORY_ORDER = [...CATEGORY_ORDER];
+
+const LEGACY_CATEGORY_MAP = {
+  "Supply Chain": "Supply Chain and Logistics",
+  Geopolitics: "Geopolitics and Trade",
+  "Technology & Digital Infrastructure": "Technology and Digital Infrastructure",
+  "Public Health & Biosecurity": "Public Health and Biosecurity",
+  Domestic: "Policy and Regulation"
+};
 
 const VALID_RISK_LEVELS = new Set(["Low", "Medium", "High", "Critical"]);
 const VALID_DIRECTIONS = new Set(["Rising", "Stable", "Easing", "Unknown"]);
@@ -30,24 +32,67 @@ let currentCategory = "";
 let newsDetailOrigin = "home";
 let menuCloseTimer = null;
 
-const CATEGORY_ICONS = {
-  Energy: '<path d="M13 2 5 13h6l-1 9 8-12h-6l1-8Z"></path>',
-  Geopolitics:
-    '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"></path>',
-  "Supply Chain":
-    '<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle>',
-  "Technology & Digital Infrastructure":
-    '<rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M20 9h3M1 15h3M20 15h3"></path>',
-  "Public Health & Biosecurity":
-    '<path d="M20.8 9.2c0 5.6-8.8 10.2-8.8 10.2S3.2 14.8 3.2 9.2A4.6 4.6 0 0 1 12 7.1a4.6 4.6 0 0 1 8.8 2.1Z"></path><path d="M7.2 12h2l1.2-2.3 2.1 4.5 1.3-2.2h3"></path>'
-};
-
-const CATEGORY_COLORS = {
-  Energy: ["#fff4dd", "#c78310"],
-  Geopolitics: ["#ebf2ff", "#3268be"],
-  "Supply Chain": ["#f1edff", "#7354be"],
-  "Technology & Digital Infrastructure": ["#e9f7f5", "#248c80"],
-  "Public Health & Biosecurity": ["#fff0f1", "#c34a60"]
+const CATEGORY_META = {
+  Energy: {
+    icon: '<path d="M13 2 5 13h6l-1 9 8-12h-6l1-8Z"></path>',
+    color: "#b7791f",
+    background: "#fff6df",
+    border: "#efd89a"
+  },
+  "Supply Chain and Logistics": {
+    icon: '<path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z"></path><circle cx="7" cy="18" r="2"></circle><circle cx="18" cy="18" r="2"></circle>',
+    color: "#6d55b3",
+    background: "#f3efff",
+    border: "#dbd2ff"
+  },
+  "Technology and Digital Infrastructure": {
+    icon: '<rect x="4" y="4" width="16" height="16" rx="3"></rect><path d="M9 9h6v6H9zM9 1v3M15 1v3M9 20v3M15 20v3M1 9h3M20 9h3M1 15h3M20 15h3"></path>',
+    color: "#177f78",
+    background: "#e8f7f5",
+    border: "#c4e7e2"
+  },
+  "Public Health and Biosecurity": {
+    icon: '<path d="M20.8 9.2c0 5.6-8.8 10.2-8.8 10.2S3.2 14.8 3.2 9.2A4.6 4.6 0 0 1 12 7.1a4.6 4.6 0 0 1 8.8 2.1Z"></path><path d="M7.2 12h2l1.2-2.3 2.1 4.5 1.3-2.2h3"></path>',
+    color: "#b94e66",
+    background: "#fff0f3",
+    border: "#f1c8d0"
+  },
+  "Geopolitics and Trade": {
+    icon: '<circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c2.5 2.6 3.8 5.6 3.8 9S14.5 18.4 12 21c-2.5-2.6-3.8-5.6-3.8-9S9.5 5.6 12 3Z"></path>',
+    color: "#3268be",
+    background: "#edf4ff",
+    border: "#c9dbf8"
+  },
+  "Policy and Regulation": {
+    icon: '<path d="M7 3h8l4 4v14H7z"></path><path d="M15 3v5h5M10 12h7M10 16h7"></path>',
+    color: "#51677f",
+    background: "#f0f5f9",
+    border: "#d5e0ea"
+  },
+  "Environment and Sustainability": {
+    icon: '<path d="M5 20c8-1 13-7 14-16-8 1-14 6-14 14v2Z"></path><path d="M5 18c4-4 7-6 13-9"></path>',
+    color: "#2d8752",
+    background: "#eaf8ef",
+    border: "#c8e8d2"
+  },
+  "Investment and FDI": {
+    icon: '<path d="M4 19h16M6 16l4-4 3 3 5-7"></path><path d="M15 8h3v3"></path>',
+    color: "#b86b20",
+    background: "#fff3e7",
+    border: "#efd2b1"
+  },
+  "Labor and Human Capital": {
+    icon: '<path d="M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM15 21v-2a6 6 0 0 0-12 0v2"></path><path d="M17 11a3 3 0 1 0 0-6M21 21v-2a5 5 0 0 0-4-4.9"></path>',
+    color: "#5b5fb8",
+    background: "#f0f1ff",
+    border: "#d6d8fa"
+  },
+  "Competitive Landscape": {
+    icon: '<path d="M4 6l5-2 6 2 5-2v14l-5 2-6-2-5 2V6Z"></path><path d="M9 4v14M15 6v14"></path>',
+    color: "#536b83",
+    background: "#f1f5f9",
+    border: "#d8e1ea"
+  }
 };
 
 function safeText(value, fallback) {
@@ -68,8 +113,45 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function normalizeCategory(category) {
+  const value = safeText(category, "");
+  if (!value) return "";
+  return LEGACY_CATEGORY_MAP[value] || value;
+}
+
+function getPrimaryCategory(item) {
+  return normalizeCategory(item?.primary_category || item?.category) || "Geopolitics and Trade";
+}
+
+function parseJoinedList(value) {
+  return safeText(value, "")
+    .split("|")
+    .map((item) => normalizeCategory(item))
+    .filter(Boolean);
+}
+
+function getRelatedCategories(item) {
+  const primaryCategory = getPrimaryCategory(item);
+  return [...new Set(parseJoinedList(item?.related_categories_joined))]
+    .filter((category) => category !== primaryCategory);
+}
+
+function parseRelatedCategories(item) {
+  return getRelatedCategories(item);
+}
+
+function categoryOrderIndex(category) {
+  const index = CATEGORY_ORDER.indexOf(normalizeCategory(category));
+  return index === -1 ? CATEGORY_ORDER.length : index;
+}
+
 function safeCategory(value) {
-  return VALID_CATEGORIES.has(value) ? value : "Geopolitics";
+  return normalizeCategory(value) || "Geopolitics and Trade";
+}
+
+function getCategoryMeta(category) {
+  const displayCategory = normalizeCategory(category);
+  return CATEGORY_META[displayCategory] || CATEGORY_META["Geopolitics and Trade"];
 }
 
 function safeRisk(value) {
@@ -129,10 +211,10 @@ function renderBriefMeta(data) {
 }
 
 function createCategoryIcon(category) {
-  const [background, color] = CATEGORY_COLORS[category] || CATEGORY_COLORS.Geopolitics;
+  const meta = getCategoryMeta(category);
   return `
-    <span class="category-icon" style="--icon-bg:${background};--icon-color:${color}" aria-hidden="true">
-      <svg viewBox="0 0 24 24">${CATEGORY_ICONS[category] || CATEGORY_ICONS.Geopolitics}</svg>
+    <span class="category-icon" style="--icon-bg:${meta.background};--icon-color:${meta.color}" aria-hidden="true">
+      <svg viewBox="0 0 24 24">${meta.icon}</svg>
     </span>
   `;
 }
@@ -141,15 +223,57 @@ function directionLabel(direction) {
   return {
     Rising: "Risk Increased",
     Easing: "Risk Decreased",
-    Stable: "No Change",
-    Unknown: "No Change"
-  }[direction] || "No Change";
+    Stable: "Stable Risk",
+    Unknown: "No Recent Signal"
+  }[direction] || "No Recent Signal";
+}
+
+function createCategoryChip(category, options = {}) {
+  const displayCategory = normalizeCategory(category);
+  if (!displayCategory) return "";
+
+  const meta = getCategoryMeta(displayCategory);
+  const kind = options.primary ? "primary" : "related";
+  return `
+    <span
+      class="category-chip category-chip-${kind}"
+      style="--category-chip-bg:${meta.background};--category-chip-color:${meta.color};--category-chip-border:${meta.border}"
+    >${escapeHtml(displayCategory)}</span>
+  `;
+}
+
+function createCategoryChipRow(item, options = {}) {
+  const primaryCategory = getPrimaryCategory(item);
+  const categories = [primaryCategory, ...parseRelatedCategories(item)];
+  const uniqueCategories = [...new Set(categories)].filter(Boolean);
+  if (uniqueCategories.length === 0) return "";
+
+  return `
+    <span class="category-chip-row${options.compact ? " category-chip-row-compact" : ""}" aria-label="Categories">
+      ${uniqueCategories
+        .map((category, index) => createCategoryChip(category, { primary: index === 0 }))
+        .join("")}
+    </span>
+  `;
 }
 
 function renderRiskOverview(items) {
   const container = document.querySelector("#risk-overview");
   const visibleItems = Array.isArray(items)
-    ? HOME_CATEGORY_ORDER.map((category) => items.find((item) => item.category === category)).filter(Boolean)
+    ? [...items]
+        .map((item) => ({
+          ...item,
+          category: getPrimaryCategory(item)
+        }))
+        .sort((a, b) => {
+          const orderA = Number.isFinite(Number(a.category_order))
+            ? Number(a.category_order)
+            : categoryOrderIndex(a.category) + 100;
+          const orderB = Number.isFinite(Number(b.category_order))
+            ? Number(b.category_order)
+            : categoryOrderIndex(b.category) + 100;
+          return orderA - orderB || categoryOrderIndex(a.category) - categoryOrderIndex(b.category);
+        })
     : [];
 
   if (visibleItems.length === 0) {
@@ -186,7 +310,7 @@ function renderRiskOverview(items) {
 }
 
 function findCategorySummary(category) {
-  return briefingData?.risk_overview?.find((item) => item.category === category) || {
+  return briefingData?.risk_overview?.find((item) => getPrimaryCategory(item) === category) || {
     category,
     subtitle_th: "ไม่มีรายละเอียดเพิ่มเติม",
     risk_level: "Medium",
@@ -199,7 +323,7 @@ function renderCategoryNews(category) {
   const count = document.querySelector("#category-news-count");
   const newsItems = Array.isArray(briefingData?.web_category_news)
     ? briefingData.web_category_news
-        .filter((item) => item.category === category)
+        .filter((item) => getPrimaryCategory(item) === category)
         .sort((a, b) => {
           const dateOrder = safeText(b.report_date, "").localeCompare(safeText(a.report_date, ""));
           return dateOrder || Number(a.news_rank || 0) - Number(b.news_rank || 0);
@@ -219,6 +343,7 @@ function renderCategoryNews(category) {
       const direction = safeDirection(item.risk_direction);
       const watchpoint = safeText(item.watchpoint_short, "");
       const themeId = safeText(item.theme_id, "");
+      const categoryChips = createCategoryChipRow(item, { compact: true });
 
       return `
         <button class="category-news-card" type="button" data-news-theme="${escapeHtml(themeId)}">
@@ -231,6 +356,7 @@ function renderCategoryNews(category) {
               <span class="risk-badge risk-${className(riskLevel)}">${riskLevel}</span>
             </div>
           </div>
+          ${categoryChips}
           <h3>${escapeHtml(safeText(item.headline_short, "ไม่มีชื่อประเด็นข่าว"))}</h3>
           <p class="news-detail">${escapeHtml(safeText(item.headline_detail, "ไม่มีรายละเอียดข่าวเพิ่มเติม"))}</p>
           ${
@@ -249,14 +375,15 @@ function renderCategoryNews(category) {
 }
 
 function showCategoryDetail(category, updateHash = true) {
-  if (!VALID_CATEGORIES.has(category) || !briefingData) return;
+  const selectedCategory = normalizeCategory(category);
+  if (!selectedCategory || !briefingData) return;
 
-  const summary = findCategorySummary(category);
+  const summary = findCategorySummary(selectedCategory);
   const riskLevel = safeRisk(summary.risk_level);
   const direction = safeDirection(summary.risk_direction);
 
-  document.querySelector("#category-detail-icon").innerHTML = createCategoryIcon(category);
-  document.querySelector("#category-detail-title").textContent = category;
+  document.querySelector("#category-detail-icon").innerHTML = createCategoryIcon(selectedCategory);
+  document.querySelector("#category-detail-title").textContent = selectedCategory;
   document.querySelector("#category-detail-subtitle").textContent = safeText(
     summary.subtitle_th,
     "ไม่มีรายละเอียดเพิ่มเติม"
@@ -270,8 +397,8 @@ function showCategoryDetail(category, updateHash = true) {
   badge.className = `risk-badge risk-${className(riskLevel)}`;
   badge.textContent = riskLevel;
 
-  renderCategoryNews(category);
-  currentCategory = category;
+  renderCategoryNews(selectedCategory);
+  currentCategory = selectedCategory;
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = false;
   document.querySelector("#today-headlines-view").hidden = true;
@@ -279,11 +406,11 @@ function showCategoryDetail(category, updateHash = true) {
   document.querySelector("#watchlist-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("");
-  document.title = `${category} | IEAT Intelligence`;
+  document.title = `${selectedCategory} | IEAT Intelligence`;
   window.scrollTo({ top: 0, behavior: "auto" });
 
   if (updateHash) {
-    history.pushState({ category }, "", `#category=${encodeURIComponent(category)}`);
+    history.pushState({ category: selectedCategory }, "", `#category=${encodeURIComponent(selectedCategory)}`);
   }
 }
 
@@ -324,7 +451,7 @@ function getTodayHeadlineItems() {
   const webTopHeadlines = Array.isArray(briefingData?.web_top_headlines)
     ? briefingData.web_top_headlines.map(findFullNews).filter(Boolean)
     : [];
-  const categoryNews = getWebCategoryNews().filter((item) => item.category !== "Domestic");
+  const categoryNews = getWebCategoryNews();
   const combinedNews = [...webTopHeadlines, ...categoryNews];
   const latestDate = combinedNews.reduce(
     (latest, item) => (safeText(item.report_date, "") > latest ? item.report_date : latest),
@@ -361,12 +488,13 @@ function renderTodayHeadlines() {
       const riskLevel = safeRisk(item.risk_level);
       const direction = safeDirection(item.risk_direction);
       const themeId = safeText(item.theme_id, "");
+      const categoryChips = createCategoryChipRow(item);
 
       return `
         <button class="today-headline-card" type="button" data-today-index="${index}" data-news-theme="${escapeHtml(themeId)}">
           <div class="today-headline-number">${String(index + 1).padStart(2, "0")}</div>
           <div class="today-headline-copy">
-            <span class="category-tag">${escapeHtml(safeCategory(item.category))}</span>
+            ${categoryChips}
             <h2>${escapeHtml(safeText(item.headline_short, "ไม่มีชื่อประเด็นข่าว"))}</h2>
             <p>${escapeHtml(safeText(item.headline_detail, "ไม่มีรายละเอียดข่าวเพิ่มเติม"))}</p>
             <div class="today-headline-meta">
@@ -459,10 +587,48 @@ function renderSourceList(sources) {
   `;
 }
 
+function getKeySignals(news = {}) {
+  const signalsJson = safeText(news.key_signals_json, "");
+
+  if (signalsJson) {
+    try {
+      const parsedSignals = JSON.parse(signalsJson);
+      if (Array.isArray(parsedSignals)) {
+        const signals = parsedSignals
+          .map((signal) => safeText(signal, ""))
+          .filter(Boolean);
+
+        if (signals.length > 0) return signals;
+      }
+    } catch {}
+  }
+
+  const joinedSignals = safeText(news.key_signals_joined, "");
+  if (!joinedSignals) return [];
+
+  return joinedSignals
+    .split("|")
+    .map((signal) => safeText(signal, ""))
+    .filter(Boolean);
+}
+
+function renderKeySignals(signals) {
+  if (signals.length === 0) return "";
+
+  return `
+    <section class="article-briefing-section article-key-signals">
+      <p class="section-kicker">KEY SIGNALS</p>
+      <h2>สัญญาณสำคัญจากข่าว</h2>
+      <ul class="article-signal-list">
+        ${signals.map((signal) => `<li>${escapeHtml(signal)}</li>`).join("")}
+      </ul>
+    </section>
+  `;
+}
+
 function renderNewsDetail(item) {
   const container = document.querySelector("#news-detail-content");
   const news = findFullNews(item) || {};
-  const category = safeCategory(news.category);
   const riskLevel = safeRisk(news.risk_level);
   const direction = safeDirection(news.risk_direction);
   const headline = safeText(
@@ -474,6 +640,7 @@ function renderNewsDetail(item) {
     safeText(news.headline_detail, "")
   );
   const executiveTakeaway = safeText(news.executive_takeaway_full, "");
+  const keySignals = getKeySignals(news);
   const thailandImpact = safeText(news.thailand_impact_full, "");
   const ieatRelevance = safeText(news.ieat_relevance_full, "");
   const watchpoint = safeText(
@@ -490,7 +657,7 @@ function renderNewsDetail(item) {
 
   container.innerHTML = `
     <header class="news-article-header">
-      <div class="news-article-category">${escapeHtml(category)}</div>
+      ${createCategoryChipRow(news)}
       <time datetime="${escapeHtml(safeText(news.report_date, ""))}">
         ${escapeHtml(formatThaiDate(news.report_date || briefingData?.report_date))}
       </time>
@@ -510,6 +677,7 @@ function renderNewsDetail(item) {
           </section>`
         : ""
     }
+    ${renderKeySignals(keySignals)}
     ${
       thailandImpact
         ? `<section class="article-briefing-section">
@@ -615,12 +783,13 @@ function getWatchlistItems() {
         : [];
 
   return sourceItems
-    .filter((item) => WATCHLIST_CATEGORY_ORDER.includes(item.category))
     .map((item) => ({
       ...item,
+      category: getPrimaryCategory(item),
       text: safeText(item.watchpoint_full, safeText(item.watchpoint_short, "")),
       rank: Number(item.news_rank ?? item.watch_rank ?? 0)
     }))
+    .filter((item) => WATCHLIST_CATEGORY_ORDER.includes(item.category))
     .filter((item) => item.text)
     .sort((a, b) => {
       const categoryOrder =
@@ -673,7 +842,8 @@ function renderWatchlist() {
                   ${dateItems
                     .map((item) => {
                       const news = findWatchlistNews(item);
-                      const content = `<span>${escapeHtml(item.text)}</span>`;
+                      const categoryChips = createCategoryChipRow(item, { compact: true });
+                      const content = `<span>${categoryChips}<span>${escapeHtml(item.text)}</span></span>`;
 
                       return `
                         <li>
@@ -870,10 +1040,10 @@ function renderHeadlines(items) {
 
   list.innerHTML = items
     .map((item, originalIndex) => ({ item, originalIndex }))
-    .filter(({ item }) => item.category !== "Domestic")
     .slice(0, 3)
     .map(({ item, originalIndex }, index) => {
-      const category = safeCategory(item.category);
+      const fullItem = findFullNews(item) || item;
+      const categoryChips = createCategoryChipRow(fullItem, { compact: true });
       const riskLevel = safeRisk(item.risk_level);
 
       return `
@@ -882,7 +1052,7 @@ function renderHeadlines(items) {
           <div class="headline-copy">
             <h3 class="headline-title">${safeText(item.headline_short, "ไม่มีชื่อประเด็นข่าว")}</h3>
             <div class="headline-meta">
-              <span class="category-tag">${category}</span>
+              ${categoryChips}
               <span class="headline-risk text-${className(riskLevel)}">
                 Risk: ${riskLevel}
               </span>
@@ -926,15 +1096,17 @@ function normalizeBriefingData(data) {
       home.executive_summary_short ||
       home.page_subtitle,
     risk_overview:
-      Array.isArray(data.risk_overview) && data.risk_overview.length > 0
+      (Array.isArray(data.risk_overview) && data.risk_overview.length > 0
         ? data.risk_overview
-        : categoryStatus.map((item) => ({
-            ...item,
-            subtitle_th:
-              item.subtitle_th ||
-              item.category_subtitle_th ||
-              item.category_th
-          })),
+        : categoryStatus
+      ).map((item) => ({
+        ...item,
+        category: getPrimaryCategory(item),
+        subtitle_th:
+          item.subtitle_th ||
+          item.category_subtitle_th ||
+          item.category_th
+      })),
     top_headlines:
       Array.isArray(data.top_headlines) && data.top_headlines.length > 0
         ? data.top_headlines

@@ -73,11 +73,15 @@ The homepage must include:
 
 3. Risk Overview by Category
    - Energy
-   - Geopolitics
-   - Supply Chain
-   - Technology & Digital Infrastructure
-   - Domestic
-   - Public Health & Biosecurity
+   - Supply Chain and Logistics
+   - Technology and Digital Infrastructure
+   - Public Health and Biosecurity
+   - Geopolitics and Trade
+   - Policy and Regulation
+   - Environment and Sustainability
+   - Investment and FDI
+   - Labor and Human Capital
+   - Competitive Landscape
 
 Each category row must show:
 - icon
@@ -108,11 +112,22 @@ Each category row must show:
 Use only these category values:
 
 - Energy
-- Geopolitics
-- Supply Chain
-- Technology & Digital Infrastructure
-- Domestic
-- Public Health & Biosecurity
+- Supply Chain and Logistics
+- Technology and Digital Infrastructure
+- Public Health and Biosecurity
+- Geopolitics and Trade
+- Policy and Regulation
+- Environment and Sustainability
+- Investment and FDI
+- Labor and Human Capital
+- Competitive Landscape
+
+## Category Data Model
+
+- `primary_category` is the main category field for grouping, filtering, navigation, and display.
+- If older JSON only has `category`, normalize legacy category names to the active category values above.
+- `related_categories_joined` is optional secondary category metadata and may be shown as small category chips.
+- `topic_tags_joined`, `risk_issue_key`, and `risk_issue_name` may exist in JSON for data and analytics, but they are not displayed in the UI for now.
 
 ## Risk Level Values
 
