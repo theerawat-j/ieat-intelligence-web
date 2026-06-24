@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f5f7fb">
   <meta name="description" content="IEAT Daily Intelligence executive briefing dashboard">
   <title>IEAT Intelligence</title>
-  <link rel="stylesheet" href="./style.css?v=5">
+  <link rel="stylesheet" href="./style.css?v=17">
 </head>
 <body>
   <div class="app-shell">
@@ -22,7 +22,7 @@
         <p class="brand-subtitle">EXECUTIVE BRIEFING</p>
       </div>
 
-      <span class="header-spacer" aria-hidden="true"></span>
+      <time id="report-date" datetime="">กำลังโหลดข้อมูล...</time>
     </header>
 
     <div id="menu-backdrop" class="menu-backdrop" hidden></div>
@@ -56,14 +56,14 @@
     <main>
       <div id="home-view">
       <section class="hero" aria-labelledby="brief-title">
-        <time id="report-date" datetime="">กำลังโหลดข้อมูล...</time>
         <h1 id="brief-title">Daily Intelligence Brief</h1>
         <p id="executive-summary" class="executive-summary">
           กำลังจัดเตรียมบทสรุปสำหรับผู้บริหาร
         </p>
       </section>
 
-      <section class="content-section" aria-labelledby="headlines-heading">
+      <div class="home-dashboard-grid">
+        <section class="content-section" aria-labelledby="headlines-heading">
         <div class="section-heading">
           <h2 id="headlines-heading">Top Headlines – วันนี้</h2>
           <button id="view-all-headlines" class="section-link" type="button">
@@ -91,8 +91,14 @@
         </div>
       </section>
 
+            </div>
+
       <section class="content-section watchpoint-section" aria-labelledby="watchpoint-heading">
-        <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
+        <div class="section-heading">
+          <h2 id="watchpoint-heading">WATCHPOINT TODAY</h2>
+        </div>
+        <div id="watchpoint-list" class="watchpoint-list" aria-live="polite">
+          <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
           <div class="watchpoint-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24">
               <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
@@ -101,11 +107,11 @@
           </div>
           <div>
             <p class="section-kicker">WATCHPOINT TODAY</p>
-            <h2 id="watchpoint-heading">Watchpoint Today</h2>
             <p id="watchpoint-text">กำลังโหลดประเด็นที่ต้องติดตาม...</p>
           </div>
           <span class="card-chevron" aria-hidden="true">›</span>
         </article>
+        </div>
       </section>
 
       <div id="data-error" class="error-message" role="status" hidden>
@@ -219,6 +225,6 @@
     </nav>
   </div>
 
-  <script src="./app.js?v=8" defer></script>
+  <script src="./app.js?v=10" defer></script>
 </body>
 </html>

@@ -1010,9 +1010,14 @@ function bindNavigation() {
   document.querySelector("#watchlist-back").addEventListener("click", () => showHome(false));
   document.querySelector("#nav-home").addEventListener("click", () => showHome(false));
   document.querySelector("#nav-watchlist").addEventListener("click", showWatchlist);
-  document.querySelector(".watchpoint-card").addEventListener("click", showWatchlist);
-  document.querySelector(".watchpoint-card").addEventListener("keydown", (event) => {
+  document.querySelector("#watchpoint-list").addEventListener("click", (event) => {
+    if (!event.target.closest(".watchpoint-card")) return;
+
+    showWatchlist();
+  });
+  document.querySelector("#watchpoint-list").addEventListener("keydown", (event) => {
     if (event.key !== "Enter" && event.key !== " ") return;
+    if (!event.target.closest(".watchpoint-card")) return;
 
     event.preventDefault();
     showWatchlist();
@@ -1107,13 +1112,54 @@ function renderHeadlines(items) {
     .join("");
 }
 
-function renderWatchpoint(value) {
-  document.querySelector("#watchpoint-text").textContent = safeText(
-    value,
-    "ยังไม่มีประเด็นเฝ้าระวังเพิ่มเติมสำหรับวันนี้"
-  );
+function getHomepageWatchpoints(value) {
+  const reportDate = safeText(briefingData?.report_date, "");
+  const watchlistItems = Array.isArray(briefingData?.web_watchlist)
+    ? briefingData.web_watchlist
+    : [];
+  const currentWatchpoints = watchlistItems
+    .filter((item) => !reportDate || safeText(item.report_date, "") === reportDate)
+    .map((item) => ({
+      category: getPrimaryCategory(item),
+      text: safeText(item.watchpoint_detail, safeText(item.watchpoint_short, ""))
+    }))
+    .filter((item) => item.text);
+
+  if (currentWatchpoints.length > 0) return currentWatchpoints;
+
+  return [
+    {
+      category: "",
+      text: safeText(
+        value,
+        "ยังไม่มีประเด็นเฝ้าระวังเพิ่มเติมสำหรับวันนี้"
+      )
+    }
+  ];
 }
 
+function renderWatchpoint(value) {
+  const watchpointList = document.querySelector("#watchpoint-list");
+  const watchpoints = getHomepageWatchpoints(value);
+
+  watchpointList.innerHTML = watchpoints
+    .map((item, index) => `
+      <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
+        <div class="watchpoint-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+            <circle cx="12" cy="12" r="2.5"></circle>
+          </svg>
+        </div>
+        <div>
+          <p class="section-kicker">${escapeHtml(item.category || "WATCHPOINT TODAY")}</p>
+          <p${index === 0 ? ' id="watchpoint-text"' : ' class="watchpoint-text"'}>${escapeHtml(item.text)}</p>
+        </div>
+        <span class="card-chevron" aria-hidden="true">›</span>
+      </article>
+    `)
+    .join("");
+}
 function firstRecord(value) {
   if (Array.isArray(value)) return value[0] || {};
   return value && typeof value === "object" ? value : {};
