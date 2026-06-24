@@ -140,6 +140,39 @@ function parseRelatedCategories(item) {
   return getRelatedCategories(item);
 }
 
+function itemTouchesCategory(item, selectedCategory) {
+  const category = normalizeCategory(selectedCategory);
+  if (!category) return false;
+
+  return getPrimaryCategory(item) === category || getRelatedCategories(item).includes(category);
+}
+
+function getCategoryMatchPriority(item, selectedCategory) {
+  const category = normalizeCategory(selectedCategory);
+  if (getPrimaryCategory(item) === category) return 0;
+  if (getRelatedCategories(item).includes(category)) return 1;
+  return 2;
+}
+
+function newsDedupeKey(item) {
+  return (
+    safeText(item?.theme_id, "") ||
+    safeText(item?.news_key, "") ||
+    safeText(item?.headline_short, "")
+  );
+}
+
+function dedupeNewsItems(items) {
+  const seen = new Set();
+
+  return items.filter((item, index) => {
+    const key = newsDedupeKey(item) || `news-${index}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function categoryOrderIndex(category) {
   const index = CATEGORY_ORDER.indexOf(normalizeCategory(category));
   return index === -1 ? CATEGORY_ORDER.length : index;
@@ -321,12 +354,21 @@ function findCategorySummary(category) {
 function renderCategoryNews(category) {
   const list = document.querySelector("#category-news-list");
   const count = document.querySelector("#category-news-count");
+  const selectedCategory = normalizeCategory(category);
   const newsItems = Array.isArray(briefingData?.web_category_news)
-    ? briefingData.web_category_news
-        .filter((item) => getPrimaryCategory(item) === category)
+    ? dedupeNewsItems(
+        briefingData.web_category_news.filter((item) => itemTouchesCategory(item, selectedCategory))
+      )
         .sort((a, b) => {
           const dateOrder = safeText(b.report_date, "").localeCompare(safeText(a.report_date, ""));
-          return dateOrder || Number(a.news_rank || 0) - Number(b.news_rank || 0);
+          if (dateOrder) return dateOrder;
+
+          const matchOrder =
+            getCategoryMatchPriority(a, selectedCategory) -
+            getCategoryMatchPriority(b, selectedCategory);
+          if (matchOrder) return matchOrder;
+
+          return Number(a.news_rank || 999) - Number(b.news_rank || 999);
         })
     : [];
 
