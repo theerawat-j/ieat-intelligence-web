@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f5f7fb">
   <meta name="description" content="IEAT Daily Intelligence executive briefing dashboard">
   <title>IEAT Intelligence</title>
-  <link rel="stylesheet" href="./style.css?v=22">
+  <link rel="stylesheet" href="./style.css?v=23">
 </head>
 <body>
   <div class="app-shell">
@@ -207,6 +207,34 @@
         </header>
         <div id="watchlist-items" class="watchlist-items" aria-live="polite"></div>
       </section>
+
+      <section id="reports-view" class="subpage-view reports-view" aria-labelledby="reports-title" hidden>
+        <div class="detail-toolbar">
+          <button id="reports-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header reports-header">
+          <p class="section-kicker">IEAT DAILY BRIEF</p>
+          <h1 id="reports-title">Reports</h1>
+          <p>IEAT Daily Executive Intelligence Briefing</p>
+        </header>
+        <div class="reports-frame-shell">
+          <iframe
+            src="https://ieat-daily-brief.pages.dev/"
+            title="IEAT Daily Executive Intelligence Briefing"
+            class="reports-frame"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <p class="reports-fallback">
+          หากรายงานไม่แสดงผล สามารถ
+          <a href="https://ieat-daily-brief.pages.dev/" target="_blank" rel="noopener noreferrer">เปิดรายงานในหน้าใหม่</a>
+        </p>
+      </section>
     </main>
 
     <nav class="bottom-nav" aria-label="เมนูหลัก">
@@ -217,12 +245,12 @@
         </svg>
         <span>หน้าหลัก</span>
       </button>
-      <a class="nav-item" href="https://ieat-daily-brief.pages.dev/">
+      <button id="nav-reports" class="nav-item" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M6 3h12v18l-6-3-6 3V3Z"></path>
         </svg>
         <span>Reports</span>
-      </a>
+      </button>
       <button id="nav-watchlist" class="nav-item" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="3"></circle>
@@ -233,6 +261,6 @@
     </nav>
   </div>
 
-  <script src="./app.js?v=11" defer></script>
+  <script src="./app.js?v=12" defer></script>
 </body>
 </html>

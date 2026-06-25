@@ -446,6 +446,7 @@ function showCategoryDetail(category, updateHash = true) {
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("");
   document.title = `${selectedCategory} | IEAT Intelligence`;
@@ -461,6 +462,7 @@ function showHome(updateHash = true) {
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
   document.querySelector("#home-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("home");
@@ -557,6 +559,7 @@ function showTodayHeadlines() {
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -765,6 +768,7 @@ function showNewsDetail(item, origin) {
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -797,15 +801,23 @@ function backFromNewsDetail() {
 
 function setActiveNav(activeView) {
   const home = document.querySelector("#nav-home");
+  const reports = document.querySelector("#nav-reports");
   const watchlist = document.querySelector("#nav-watchlist");
 
   home.classList.toggle("active", activeView === "home");
+  reports.classList.toggle("active", activeView === "reports");
   watchlist.classList.toggle("active", activeView === "watchlist");
 
   if (activeView === "home") {
     home.setAttribute("aria-current", "page");
   } else {
     home.removeAttribute("aria-current");
+  }
+
+  if (activeView === "reports") {
+    reports.setAttribute("aria-current", "page");
+  } else {
+    reports.removeAttribute("aria-current");
   }
 
   if (activeView === "watchlist") {
@@ -914,10 +926,24 @@ function showWatchlist() {
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("watchlist");
   document.title = "Watchpoint Today | IEAT Intelligence";
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function showReports() {
+  document.querySelector("#home-view").hidden = true;
+  document.querySelector("#category-view").hidden = true;
+  document.querySelector("#today-headlines-view").hidden = true;
+  document.querySelector("#news-detail-view").hidden = true;
+  document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = false;
+  document.body.classList.remove("detail-open");
+  setActiveNav("reports");
+  document.title = "Reports | IEAT Intelligence";
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
@@ -1008,7 +1034,9 @@ function bindNavigation() {
   document.querySelector("#today-headlines-back").addEventListener("click", () => showHome(false));
   document.querySelector("#news-detail-back").addEventListener("click", backFromNewsDetail);
   document.querySelector("#watchlist-back").addEventListener("click", () => showHome(false));
+  document.querySelector("#reports-back").addEventListener("click", () => showHome(false));
   document.querySelector("#nav-home").addEventListener("click", () => showHome(false));
+  document.querySelector("#nav-reports").addEventListener("click", showReports);
   document.querySelector("#nav-watchlist").addEventListener("click", showWatchlist);
   document.querySelector("#watchpoint-list").addEventListener("click", (event) => {
     if (!event.target.closest(".watchpoint-card")) return;
