@@ -3427,3 +3427,143 @@ body {
     padding-top: 0;
   }
 }
+
+/* Watchpoint Radar Eye icon */
+.watchpoint-icon {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background:
+    radial-gradient(circle at 35% 28%, #7b4bc2 0%, #4b2382 48%, #24113f 100%);
+  color: #fff;
+  box-shadow:
+    0 12px 26px rgba(75, 35, 130, 0.3),
+    0 0 0 6px rgba(123, 75, 194, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.watchpoint-icon .radar-eye-icon {
+  width: 28px;
+  height: 28px;
+  fill: none;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.85;
+  filter: drop-shadow(0 1px 3px rgba(255, 255, 255, 0.22));
+}
+
+.watchpoint-icon .radar-orbit {
+  stroke: #d9ccff;
+  stroke-width: 1.55;
+  opacity: 0.92;
+}
+
+.watchpoint-icon .radar-dot {
+  fill: #efe8ff;
+  stroke: none;
+}
+
+/* Watchpoint readability grid */
+@media (min-width: 768px) {
+  .watchpoint-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .watchpoint-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+}
+
+@media (min-width: 768px) {
+  .watchpoint-list > .watchpoint-card:nth-last-child(1):nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 767px) {
+  .watchpoint-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Risk Overview readability */
+.home-dashboard-grid #risk-overview .risk-row {
+  min-height: 96px;
+  padding: 16px 15px;
+}
+
+.home-dashboard-grid #risk-overview .category-name {
+  margin-bottom: 5px;
+}
+
+.home-dashboard-grid #risk-overview .category-subtitle {
+  display: -webkit-box;
+  overflow: hidden;
+  color: #90869f;
+  font-size: 11.2px;
+  line-height: 1.48;
+  white-space: normal;
+  text-overflow: clip;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+@media (min-width: 768px) {
+  .home-dashboard-grid #risk-overview {
+    gap: 14px;
+  }
+
+  .home-dashboard-grid #risk-overview .risk-row {
+    min-height: 112px;
+    padding: 18px 16px;
+  }
+
+  .home-dashboard-grid #risk-overview .risk-main {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .home-dashboard-grid #risk-overview .category-name {
+    font-size: 14px;
+    line-height: 1.28;
+  }
+
+  .home-dashboard-grid #risk-overview .category-subtitle {
+    font-size: 12.4px;
+    line-height: 1.52;
+    -webkit-line-clamp: 3;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-dashboard-grid .risk-row {
+    grid-template-columns: minmax(0, 1.4fr) minmax(118px, 0.64fr) auto;
+    gap: 14px;
+  }
+
+  .home-dashboard-grid #risk-overview .risk-row {
+    min-height: 118px;
+    padding: 18px 18px;
+  }
+
+  .home-dashboard-grid #risk-overview .category-subtitle {
+    font-size: 12.8px;
+    line-height: 1.5;
+  }
+}
+
+@media (max-width: 600px) {
+  .home-dashboard-grid #risk-overview .risk-row {
+    min-height: 92px;
+    padding: 14px;
+  }
+
+  .home-dashboard-grid #risk-overview .category-subtitle {
+    font-size: 11px;
+    line-height: 1.42;
+    -webkit-line-clamp: 2;
+  }
+}

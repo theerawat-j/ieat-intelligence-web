@@ -1146,9 +1146,17 @@ function renderWatchpoint(value) {
     .map((item, index) => `
       <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
         <div class="watchpoint-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24">
-            <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
-            <circle cx="12" cy="12" r="2.5"></circle>
+          <svg class="radar-eye-icon" viewBox="0 0 24 24">
+            <path class="radar-orbit" d="M5.2 7.7a8.8 8.8 0 0 1 13.6 0"></path>
+            <path class="radar-orbit" d="M5.2 16.3a8.8 8.8 0 0 0 13.6 0"></path>
+            <path d="M3.8 12s3.1-4.4 8.2-4.4 8.2 4.4 8.2 4.4-3.1 4.4-8.2 4.4S3.8 12 3.8 12Z"></path>
+            <circle cx="12" cy="12" r="2.6"></circle>
+            <circle class="radar-dot" cx="12" cy="5.2" r="0.7"></circle>
+            <circle class="radar-dot" cx="18.9" cy="8" r="0.55"></circle>
+            <circle class="radar-dot" cx="18.9" cy="16" r="0.55"></circle>
+            <circle class="radar-dot" cx="12" cy="18.8" r="0.7"></circle>
+            <circle class="radar-dot" cx="5.1" cy="16" r="0.55"></circle>
+            <circle class="radar-dot" cx="5.1" cy="8" r="0.55"></circle>
           </svg>
         </div>
         <div>
