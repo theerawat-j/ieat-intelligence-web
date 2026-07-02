@@ -1196,6 +1196,166 @@ function renderWatchpoint(value) {
     `)
     .join("");
 }
+
+const KRI_RISK_COLOR_MAP = {
+  green: "#00B050",
+  yellow: "#EAB308",
+  orange: "#ED7D31",
+  red: "#C00000"
+};
+
+const KRI_HOME_ORDER = [
+  "S1",
+  "S2",
+  "S3",
+  "F1",
+  "F2",
+  "O1",
+  "O2",
+  "O3",
+  "O4",
+  "O5"
+];
+
+function safeHexColor(value) {
+  const color = safeText(value, "").trim();
+  if (/^#[0-9a-f]{6}$/i.test(color)) return color;
+  if (/^[0-9a-f]{6}$/i.test(color)) return `#${color}`;
+  return "";
+}
+
+function hexToRgba(hex, alpha) {
+  const normalized = safeHexColor(hex);
+  if (!normalized) return `rgba(102, 51, 163, ${alpha})`;
+
+  const value = normalized.slice(1);
+  const red = parseInt(value.slice(0, 2), 16);
+  const green = parseInt(value.slice(2, 4), 16);
+  const blue = parseInt(value.slice(4, 6), 16);
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function getKriRiskColor(item) {
+  const hexColor = safeHexColor(item.color_hex);
+  if (hexColor) return hexColor;
+
+  const riskColor = safeText(item.risk_color, "").toLowerCase();
+  return KRI_RISK_COLOR_MAP[riskColor] || "#6633A3";
+}
+
+function normalizeKriRiskVisualColor(color) {
+  const normalized = safeHexColor(color).toUpperCase();
+  if (!normalized) return "#6633A3";
+
+  if (["#FFFF00", "#FFF200", "#FFD966", "#F2C94C"].includes(normalized)) {
+    return "#EAB308";
+  }
+
+  return normalized;
+}
+
+function getKriRiskVisual(item) {
+  const accent = normalizeKriRiskVisualColor(getKriRiskColor(item));
+  return {
+    accent,
+    background: hexToRgba(accent, 0.075),
+    border: hexToRgba(accent, 0.3),
+    marker: hexToRgba(accent, 0.72)
+  };
+}
+
+function normalizePerformanceLevel(value) {
+  const level = safeText(value, "in_progress").toLowerCase();
+  return ["appetite", "tolerance", "not_meet", "in_progress"].includes(level)
+    ? level
+    : "in_progress";
+}
+
+function kriPerformanceIcon(level) {
+  if (level === "appetite") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="4.2"></circle><circle cx="12" cy="12" r="1.2"></circle><path d="m15.5 6.5 2-2M17.5 4.5h-2M17.5 4.5v2"></path><path d="m8.4 12.3 2.1 2.1 4.7-5"></path></svg>';
+  }
+
+  if (level === "tolerance") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.2 7 10 4.1-1.8 7-5.5 7-10V6l-7-3Z"></path><path d="m9 12 2 2 4-5"></path></svg>';
+  }
+
+  if (level === "not_meet") {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 10 18H2L12 3Z"></path><path d="M12 9v4M12 17h.01"></path></svg>';
+  }
+
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>';
+}
+
+function getCompactPerformanceLabel(level, fallbackLabel) {
+  const labels = {
+    appetite: "Risk Appetite",
+    tolerance: "Risk Tolerance",
+    not_meet: "ไม่บรรลุ RA / RT",
+    in_progress: "อยู่ระหว่างดำเนินงาน"
+  };
+  return labels[level] || safeText(fallbackLabel, "อยู่ระหว่างดำเนินงาน");
+}
+
+function getKriSnapshotItems() {
+  const items = Array.isArray(briefingData?.kri?.items)
+    ? briefingData.kri.items
+    : [];
+
+  const itemByCode = items.reduce((lookup, item) => {
+    const code = safeText(item.kri_code, "").toUpperCase();
+    if (code && !lookup[code]) lookup[code] = item;
+    return lookup;
+  }, {});
+
+  const orderedItems = KRI_HOME_ORDER
+    .map((code) => itemByCode[code])
+    .filter(Boolean);
+
+  if (orderedItems.length > 0) return orderedItems;
+
+  return items;
+}
+
+function renderKriSnapshot() {
+  const list = document.querySelector("#kri-snapshot-list");
+  if (!list) return;
+
+  const items = getKriSnapshotItems();
+  if (items.length === 0) {
+    list.innerHTML = '<div class="loading-card">ยังไม่มีข้อมูล KRI สำหรับรอบนี้</div>';
+    return;
+  }
+
+  list.innerHTML = items
+    .map((item) => {
+      const riskVisual = getKriRiskVisual(item);
+      const performanceLevel = normalizePerformanceLevel(item.performance_level);
+      const performanceLabel = safeText(
+        item.performance_label,
+        "อยู่ระหว่างติดตาม"
+      );
+      const compactPerformanceLabel = getCompactPerformanceLabel(
+        performanceLevel,
+        performanceLabel
+      );
+
+      return `
+        <article class="kri-tile" style="--kri-risk-color:${riskVisual.accent};--kri-risk-bg:${riskVisual.background};--kri-risk-border:${riskVisual.border};--kri-risk-accent:${riskVisual.marker}">
+          <div class="kri-tile-top">
+            <span class="kri-code">${escapeHtml(safeText(item.kri_code, "KRI"))}</span>
+            <span class="kri-risk-dot" aria-hidden="true"></span>
+          </div>
+          <h3 class="kri-name">${escapeHtml(safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง"))}</h3>
+          <div class="kri-performance kri-performance-${performanceLevel}">
+            <span class="kri-performance-icon">${kriPerformanceIcon(performanceLevel)}</span>
+            <span>${escapeHtml(compactPerformanceLabel)}</span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
 function firstRecord(value) {
   if (Array.isArray(value)) return value[0] || {};
   return value && typeof value === "object" ? value : {};
@@ -1249,6 +1409,7 @@ function showLoadError() {
   renderBriefMeta({});
   renderRiskOverview([]);
   renderHeadlines([]);
+  renderKriSnapshot();
   renderWatchpoint("");
 }
 
@@ -1275,6 +1436,7 @@ async function loadBriefing() {
     renderBriefMeta(briefing);
     renderRiskOverview(briefing.risk_overview);
     renderHeadlines(briefing.top_headlines);
+    renderKriSnapshot();
     renderWatchpoint(briefing.watchpoint);
     bindNavigation();
 
