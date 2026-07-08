@@ -30,6 +30,7 @@ const VALID_DIRECTIONS = new Set(["Rising", "Stable", "Easing", "Unknown"]);
 let briefingData = null;
 let currentCategory = "";
 let newsDetailOrigin = "home";
+let kriDetailReturnView = "home";
 let menuCloseTimer = null;
 
 const CATEGORY_META = {
@@ -447,6 +448,8 @@ function showCategoryDetail(category, updateHash = true) {
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
   document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("");
   document.title = `${selectedCategory} | IEAT Intelligence`;
@@ -463,6 +466,8 @@ function showHome(updateHash = true) {
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
   document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.querySelector("#home-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("home");
@@ -560,6 +565,8 @@ function showTodayHeadlines() {
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
   document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -769,6 +776,8 @@ function showNewsDetail(item, origin) {
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
   document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -801,10 +810,12 @@ function backFromNewsDetail() {
 
 function setActiveNav(activeView) {
   const home = document.querySelector("#nav-home");
+  const erm = document.querySelector("#nav-erm");
   const reports = document.querySelector("#nav-reports");
   const watchlist = document.querySelector("#nav-watchlist");
 
   home.classList.toggle("active", activeView === "home");
+  erm.classList.toggle("active", activeView === "erm");
   reports.classList.toggle("active", activeView === "reports");
   watchlist.classList.toggle("active", activeView === "watchlist");
 
@@ -812,6 +823,12 @@ function setActiveNav(activeView) {
     home.setAttribute("aria-current", "page");
   } else {
     home.removeAttribute("aria-current");
+  }
+
+  if (activeView === "erm") {
+    erm.setAttribute("aria-current", "page");
+  } else {
+    erm.removeAttribute("aria-current");
   }
 
   if (activeView === "reports") {
@@ -927,6 +944,8 @@ function showWatchlist() {
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("watchlist");
@@ -941,10 +960,57 @@ function showReports() {
   document.querySelector("#news-detail-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = true;
   document.querySelector("#reports-view").hidden = false;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
   document.body.classList.remove("detail-open");
   setActiveNav("reports");
   document.title = "Reports | IEAT Intelligence";
   window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function showKriDashboard() {
+  renderKriDashboard();
+  document.querySelector("#home-view").hidden = true;
+  document.querySelector("#category-view").hidden = true;
+  document.querySelector("#today-headlines-view").hidden = true;
+  document.querySelector("#news-detail-view").hidden = true;
+  document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = false;
+  document.querySelector("#kri-detail-view").hidden = true;
+  document.body.classList.add("detail-open");
+  setActiveNav("erm");
+  document.title = "ERM Dashboard | IEAT Intelligence";
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function showKriDetail(kriCode, returnView = "home") {
+  const item = getKriItemByCode(kriCode);
+  if (!item) return;
+
+  kriDetailReturnView = returnView;
+  renderKriDetail(item);
+  document.querySelector("#home-view").hidden = true;
+  document.querySelector("#category-view").hidden = true;
+  document.querySelector("#today-headlines-view").hidden = true;
+  document.querySelector("#news-detail-view").hidden = true;
+  document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = false;
+  document.body.classList.add("detail-open");
+  setActiveNav("erm");
+  document.title = `${safeText(item.kri_code, "KRI")} | IEAT Intelligence`;
+  window.scrollTo({ top: 0, behavior: "auto" });
+}
+
+function backFromKriDetail() {
+  if (kriDetailReturnView === "kri-dashboard") {
+    showKriDashboard();
+    return;
+  }
+
+  showHome(false);
 }
 
 function openMenu() {
@@ -1035,7 +1101,11 @@ function bindNavigation() {
   document.querySelector("#news-detail-back").addEventListener("click", backFromNewsDetail);
   document.querySelector("#watchlist-back").addEventListener("click", () => showHome(false));
   document.querySelector("#reports-back").addEventListener("click", () => showHome(false));
+  document.querySelector("#kri-dashboard-back").addEventListener("click", () => showHome(false));
+  document.querySelector("#view-kri-dashboard").addEventListener("click", showKriDashboard);
+  document.querySelector("#kri-detail-back").addEventListener("click", backFromKriDetail);
   document.querySelector("#nav-home").addEventListener("click", () => showHome(false));
+  document.querySelector("#nav-erm").addEventListener("click", showKriDashboard);
   document.querySelector("#nav-reports").addEventListener("click", showReports);
   document.querySelector("#nav-watchlist").addEventListener("click", showWatchlist);
   document.querySelector("#watchpoint-list").addEventListener("click", (event) => {
@@ -1066,6 +1136,40 @@ function bindNavigation() {
     showNewsDetail(findFullNews(item), "today");
   });
 
+  document.querySelector("#kri-snapshot-list").addEventListener("click", (event) => {
+    const tile = event.target.closest("[data-kri-code]");
+    if (!tile) return;
+
+    showKriDetail(tile.dataset.kriCode, "home");
+  });
+
+  document.querySelector("#kri-snapshot-list").addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const tile = event.target.closest("[data-kri-code]");
+    if (!tile) return;
+
+    event.preventDefault();
+    showKriDetail(tile.dataset.kriCode, "home");
+  });
+
+  document.querySelector("#kri-overview-list").addEventListener("click", (event) => {
+    const row = event.target.closest("[data-kri-code]");
+    if (!row) return;
+
+    showKriDetail(row.dataset.kriCode, "kri-dashboard");
+  });
+
+  document.querySelector("#kri-overview-list").addEventListener("keydown", (event) => {
+    if (event.key !== "Enter" && event.key !== " ") return;
+
+    const row = event.target.closest("[data-kri-code]");
+    if (!row) return;
+
+    event.preventDefault();
+    showKriDetail(row.dataset.kriCode, "kri-dashboard");
+  });
+
   document.querySelector("#menu-toggle").addEventListener("click", openMenu);
   document.querySelector("#menu-close").addEventListener("click", closeMenu);
   document.querySelector("#menu-backdrop").addEventListener("click", closeMenu);
@@ -1084,6 +1188,8 @@ function bindNavigation() {
     closeMenu();
     if (actionButton.dataset.menuAction === "today") {
       showTodayHeadlines();
+    } else if (actionButton.dataset.menuAction === "erm") {
+      showKriDashboard();
     } else if (actionButton.dataset.menuAction === "watchpoint") {
       showWatchlist();
     }
@@ -1201,7 +1307,43 @@ const KRI_RISK_COLOR_MAP = {
   green: "#00B050",
   yellow: "#EAB308",
   orange: "#ED7D31",
-  red: "#C00000"
+  red: "#C00000",
+  low: "#00B050",
+  medium: "#EAB308",
+  high: "#ED7D31",
+  very_high: "#C00000",
+  extreme: "#C00000"
+};
+
+const KRI_RISK_LEVEL_META = {
+  low: {
+    label: "Low",
+    accent: "#16A34A",
+    background: "rgba(22, 163, 74, 0.1)",
+    border: "rgba(22, 163, 74, 0.26)",
+    matrix: "linear-gradient(135deg, #BFEFD8 0%, #76CFA1 100%)"
+  },
+  medium: {
+    label: "Medium",
+    accent: "#D97706",
+    background: "rgba(234, 179, 8, 0.11)",
+    border: "rgba(234, 179, 8, 0.28)",
+    matrix: "linear-gradient(135deg, #FFF0B8 0%, #FFD66B 100%)"
+  },
+  high: {
+    label: "High",
+    accent: "#F97316",
+    background: "rgba(249, 115, 22, 0.1)",
+    border: "rgba(249, 115, 22, 0.28)",
+    matrix: "linear-gradient(135deg, #FFD5A8 0%, #FFA14D 100%)"
+  },
+  extreme: {
+    label: "Extreme",
+    accent: "#DC2626",
+    background: "rgba(220, 38, 38, 0.1)",
+    border: "rgba(220, 38, 38, 0.28)",
+    matrix: "linear-gradient(135deg, #FFB6B6 0%, #F95F67 100%)"
+  }
 };
 
 const KRI_HOME_ORDER = [
@@ -1216,6 +1358,31 @@ const KRI_HOME_ORDER = [
   "O4",
   "O5"
 ];
+
+const KRI_PERFORMANCE_ORDER = ["appetite", "tolerance", "in_progress", "not_meet"];
+
+const KRI_PERFORMANCE_COPY = {
+  appetite: {
+    label: "Risk Appetite",
+    summary: "บรรลุเป้าหมาย",
+    insight: "จำนวนที่บรรลุ Risk Appetite"
+  },
+  tolerance: {
+    label: "Risk Tolerance",
+    summary: "อยู่ในระดับที่ยอมรับได้",
+    insight: "จำนวนที่อยู่ใน Risk Tolerance"
+  },
+  in_progress: {
+    label: "In Progress",
+    summary: "อยู่ระหว่างดำเนินงาน",
+    insight: "จำนวนที่อยู่ระหว่างดำเนินงาน"
+  },
+  not_meet: {
+    label: "Not Meet",
+    summary: "ไม่บรรลุเป้าหมาย RA / RT",
+    insight: "จำนวนที่ไม่บรรลุ RA / RT"
+  }
+};
 
 function safeHexColor(value) {
   const color = safeText(value, "").trim();
@@ -1243,6 +1410,61 @@ function getKriRiskColor(item) {
   return KRI_RISK_COLOR_MAP[riskColor] || "#6633A3";
 }
 
+function getKriRiskColorByName(riskColor) {
+  const normalized = safeText(riskColor, "").toLowerCase();
+  return KRI_RISK_COLOR_MAP[normalized] || "#6633A3";
+}
+
+function normalizeKriRiskKey(value) {
+  const raw = safeText(value, "").trim();
+  const thaiMap = {
+    "ต่ำ": "low",
+    "ปานกลาง": "medium",
+    "สูง": "high",
+    "สูงมาก": "extreme"
+  };
+  if (thaiMap[raw]) return thaiMap[raw];
+
+  const key = raw.toLowerCase().replaceAll("-", "_").replaceAll(" ", "_");
+  const keyMap = {
+    green: "low",
+    yellow: "medium",
+    orange: "high",
+    red: "extreme",
+    very_high: "extreme",
+    extreme: "extreme",
+    low: "low",
+    medium: "medium",
+    high: "high"
+  };
+  return keyMap[key] || "";
+}
+
+function inferKriRiskKeyFromColor(color) {
+  const normalized = safeHexColor(color).toUpperCase();
+  if (!normalized) return "";
+
+  if (["#00B050", "#16A34A", "#1F9D74", "#42B883"].includes(normalized)) return "low";
+  if (["#FFFF00", "#FFF200", "#FFD966", "#F2C94C", "#EAB308", "#D97706"].includes(normalized)) return "medium";
+  if (["#ED7D31", "#F97316", "#F58220", "#DF6A3E"].includes(normalized)) return "high";
+  if (["#C00000", "#DC2626", "#C53B51", "#F95F67"].includes(normalized)) return "extreme";
+  return "";
+}
+
+function getKriRiskKey(item) {
+  return (
+    normalizeKriRiskKey(item.risk_zone) ||
+    normalizeKriRiskKey(item.risk_label) ||
+    normalizeKriRiskKey(item.risk_color) ||
+    inferKriRiskKeyFromColor(item.color_hex) ||
+    "medium"
+  );
+}
+
+function getKriRiskLevelMeta(item) {
+  return KRI_RISK_LEVEL_META[getKriRiskKey(item)] || KRI_RISK_LEVEL_META.medium;
+}
+
 function normalizeKriRiskVisualColor(color) {
   const normalized = safeHexColor(color).toUpperCase();
   if (!normalized) return "#6633A3";
@@ -1261,6 +1483,21 @@ function getKriRiskVisual(item) {
     background: hexToRgba(accent, 0.075),
     border: hexToRgba(accent, 0.3),
     marker: hexToRgba(accent, 0.72)
+  };
+}
+
+function getKriRiskVisualFromFields(colorHex, riskColor) {
+  const key =
+    normalizeKriRiskKey(riskColor) ||
+    inferKriRiskKeyFromColor(colorHex) ||
+    "medium";
+  const meta = KRI_RISK_LEVEL_META[key] || KRI_RISK_LEVEL_META.medium;
+
+  return {
+    accent: meta.accent,
+    background: meta.matrix,
+    border: meta.border,
+    marker: hexToRgba(meta.accent, 0.72)
   };
 }
 
@@ -1297,6 +1534,73 @@ function getCompactPerformanceLabel(level, fallbackLabel) {
   return labels[level] || safeText(fallbackLabel, "อยู่ระหว่างดำเนินงาน");
 }
 
+function getKriItems() {
+  return Array.isArray(briefingData?.kri?.items) ? briefingData.kri.items : [];
+}
+
+function normalizeKriCode(value) {
+  return String(value ?? "").trim().toUpperCase();
+}
+
+function getKriItemByCode(kriCode) {
+  const code = normalizeKriCode(kriCode);
+  if (!code) return null;
+
+  return getKriItems().find((item) => normalizeKriCode(item.kri_code) === code) || null;
+}
+
+function getKriActionsForItem(item) {
+  if (!item) return [];
+
+  if (Array.isArray(item.actions) && item.actions.length > 0) {
+    return item.actions;
+  }
+
+  const code = normalizeKriCode(item.kri_code);
+  const actions = Array.isArray(briefingData?.kri?.actions) ? briefingData.kri.actions : [];
+
+  return actions.filter((action) => normalizeKriCode(action.kri_code) === code);
+}
+
+function getGroupedKriActions(item) {
+  return getKriActionsForItem(item)
+    .filter((action) => safeText(action?.action_text, ""))
+    .sort((a, b) => Number(a.display_order || 999) - Number(b.display_order || 999))
+    .reduce((groups, action) => {
+      const actionType = safeText(action.action_type, "Other");
+      if (!groups[actionType]) groups[actionType] = [];
+      groups[actionType].push(action);
+      return groups;
+    }, {});
+}
+
+function getKriRiskMatrix() {
+  return Array.isArray(briefingData?.kri?.risk_matrix)
+    ? briefingData.kri.risk_matrix
+    : [];
+}
+
+function getKriHomeOrderedItems() {
+  const items = getKriItems();
+  const usedItems = new Set();
+  const itemByCode = items.reduce((lookup, item) => {
+    const code = safeText(item.kri_code, "").toUpperCase();
+    if (code && !lookup[code]) lookup[code] = item;
+    return lookup;
+  }, {});
+
+  const orderedItems = KRI_HOME_ORDER
+    .map((code) => {
+      const item = itemByCode[code];
+      if (item) usedItems.add(item);
+      return item;
+    })
+    .filter(Boolean);
+
+  const remainingItems = items.filter((item) => !usedItems.has(item));
+  return [...orderedItems, ...remainingItems];
+}
+
 function getKriSnapshotItems() {
   const items = Array.isArray(briefingData?.kri?.items)
     ? briefingData.kri.items
@@ -1315,6 +1619,542 @@ function getKriSnapshotItems() {
   if (orderedItems.length > 0) return orderedItems;
 
   return items;
+}
+
+function getKriPerformanceCounts(items) {
+  return items.reduce(
+    (counts, item) => {
+      const level = normalizePerformanceLevel(item.performance_level);
+      counts[level] += 1;
+      return counts;
+    },
+    { appetite: 0, tolerance: 0, in_progress: 0, not_meet: 0 }
+  );
+}
+
+function formatKriLastUpdate(value) {
+  if (value === null || value === undefined || value === "") return "ไม่ระบุ";
+
+  const numericValue = typeof value === "number" ? value : Number(String(value).trim());
+  if (Number.isFinite(numericValue) && numericValue > 20000) {
+    const excelEpoch = Date.UTC(1899, 11, 30);
+    const parsed = new Date(excelEpoch + numericValue * 86400000);
+    if (!Number.isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString("th-TH", {
+        day: "numeric",
+        month: "short",
+        year: "numeric"
+      });
+    }
+  }
+
+  const stringValue = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(stringValue)) {
+    return formatThaiDate(stringValue.slice(0, 10));
+  }
+
+  const parsed = new Date(stringValue);
+  if (!Number.isNaN(parsed.getTime())) {
+    return parsed.toLocaleDateString("th-TH", {
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+  }
+
+  return stringValue || "ไม่ระบุ";
+}
+
+function getKriTrendMeta(value) {
+  const trend = safeText(value, "unknown").toLowerCase();
+  const trendMap = {
+    improving: { label: "Improving", icon: "↑", className: "improving" },
+    stable: { label: "Stable", icon: "→", className: "stable" },
+    worsening: { label: "Worsening", icon: "↓", className: "worsening" },
+    unknown: { label: "Unknown", icon: "–", className: "unknown" }
+  };
+  return trendMap[trend] || trendMap.unknown;
+}
+
+function getKriRiskLevelLabel(item) {
+  return getKriRiskLevelMeta(item).label;
+}
+
+function formatNumberedText(value, fallback) {
+  const text = safeText(value, fallback);
+  return escapeHtml(text)
+    .replace(/\s+(?=\d+\.\s)/g, "<br>")
+    .replace(/\s+(?=\d+\)\s)/g, "<br>");
+}
+
+function getFallbackMatrixRiskColor(impact, likelihood) {
+  const score = Number(impact) * Number(likelihood);
+  if (score <= 4) return "green";
+  if (score <= 9) return "yellow";
+  if (score <= 16) return "orange";
+  return "red";
+}
+
+function findKriMatrixCell(matrix, impact, likelihood) {
+  return matrix.find(
+    (cell) => Number(cell.impact) === Number(impact) && Number(cell.likelihood) === Number(likelihood)
+  );
+}
+
+function renderKriSummary(container, items, variant = "header") {
+  if (!container) return;
+
+  const counts = getKriPerformanceCounts(items);
+  container.innerHTML = KRI_PERFORMANCE_ORDER
+    .map((level) => {
+      const copy = KRI_PERFORMANCE_COPY[level];
+      return `
+        <article class="kri-summary-card kri-performance-${level}">
+          <span class="kri-summary-value">${counts[level]}</span>
+          <span class="kri-summary-label">${escapeHtml(copy.label)}</span>
+          ${variant === "insight" ? `<p>${escapeHtml(copy.summary)}</p>` : ""}
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderKriMatrix(items) {
+  const matrixContainer = document.querySelector("#kri-risk-matrix");
+  if (!matrixContainer) return;
+
+  const matrix = getKriRiskMatrix();
+  const likelihoodLabels = {
+    5: "สูงมาก",
+    4: "ค่อนข้างสูง",
+    3: "ปานกลาง",
+    2: "ค่อนข้างต่ำ",
+    1: "น้อยมาก"
+  };
+  const impactLabels = {
+    1: "น้อยมาก",
+    2: "ค่อนข้างต่ำ",
+    3: "ปานกลาง",
+    4: "ค่อนข้างสูง",
+    5: "สูงมาก"
+  };
+
+  const cells = [];
+  cells.push('<div class="kri-matrix-corner"></div>');
+
+  for (let impact = 1; impact <= 5; impact += 1) {
+    cells.push(`<div class="kri-matrix-top-label">${impact}</div>`);
+  }
+
+  for (let likelihood = 5; likelihood >= 1; likelihood -= 1) {
+    cells.push(`
+      <div class="kri-matrix-row-label">
+        <strong>${likelihood}</strong>
+        <span>${likelihoodLabels[likelihood]}</span>
+      </div>
+    `);
+
+    for (let impact = 1; impact <= 5; impact += 1) {
+      const cell = findKriMatrixCell(matrix, impact, likelihood);
+      const riskColor = cell?.risk_color || getFallbackMatrixRiskColor(impact, likelihood);
+      const visual = getKriRiskVisualFromFields(cell?.color_hex, riskColor);
+      const markers = items
+        .filter((item) => Number(item.impact) === impact && Number(item.likelihood) === likelihood)
+        .map((item) => {
+          const level = normalizePerformanceLevel(item.performance_level);
+          return `
+            <span class="kri-matrix-marker kri-performance-${level}" title="${escapeHtml(safeText(item.risk_name, ""))}">
+              ${escapeHtml(safeText(item.kri_code, "KRI"))}
+            </span>
+          `;
+        })
+        .join("");
+
+      cells.push(`
+        <div class="kri-matrix-cell" style="--cell-bg:${visual.background};--cell-border:${visual.border};--cell-accent:${visual.accent}">
+          <div class="kri-matrix-markers">${markers}</div>
+        </div>
+      `);
+    }
+  }
+
+  cells.push('<div class="kri-matrix-axis-spacer"><span>LIKELIHOOD</span></div>');
+  for (let impact = 1; impact <= 5; impact += 1) {
+    cells.push(`
+      <div class="kri-matrix-bottom-label">
+        <strong>${impact}</strong>
+        <span>${impactLabels[impact]}</span>
+      </div>
+    `);
+  }
+
+  matrixContainer.innerHTML = `
+    <div class="kri-matrix-grid">${cells.join("")}</div>
+    <div class="kri-matrix-impact-label">IMPACT</div>
+  `;
+}
+
+function hasKriMatrixPosition(item) {
+  const impact = Number(item?.impact);
+  const likelihood = Number(item?.likelihood);
+
+  return (
+    Number.isFinite(impact) &&
+    Number.isFinite(likelihood) &&
+    impact >= 1 &&
+    impact <= 5 &&
+    likelihood >= 1 &&
+    likelihood <= 5
+  );
+}
+
+function renderKriDetailMiniMatrix(item) {
+  if (!hasKriMatrixPosition(item)) {
+    return '<div class="kri-detail-mini-matrix-empty">ยังไม่มีตำแหน่ง Risk Matrix สำหรับ KRI นี้</div>';
+  }
+
+  const matrix = getKriRiskMatrix();
+  const currentImpact = Number(item.impact);
+  const currentLikelihood = Number(item.likelihood);
+  const likelihoodLabels = {
+    5: "สูงมาก",
+    4: "ค่อนข้างสูง",
+    3: "ปานกลาง",
+    2: "ค่อนข้างต่ำ",
+    1: "น้อยมาก"
+  };
+  const impactLabels = {
+    1: "น้อยมาก",
+    2: "ค่อนข้างต่ำ",
+    3: "ปานกลาง",
+    4: "ค่อนข้างสูง",
+    5: "สูงมาก"
+  };
+
+  const cells = [];
+  cells.push('<div class="kri-matrix-corner"></div>');
+
+  for (let impact = 1; impact <= 5; impact += 1) {
+    cells.push(`<div class="kri-matrix-top-label">${impact}</div>`);
+  }
+
+  for (let likelihood = 5; likelihood >= 1; likelihood -= 1) {
+    cells.push(`
+      <div class="kri-matrix-row-label">
+        <strong>${likelihood}</strong>
+        <span>${likelihoodLabels[likelihood]}</span>
+      </div>
+    `);
+
+    for (let impact = 1; impact <= 5; impact += 1) {
+      const cell = findKriMatrixCell(matrix, impact, likelihood);
+      const riskColor = cell?.risk_color || getFallbackMatrixRiskColor(impact, likelihood);
+      const visual = getKriRiskVisualFromFields(cell?.color_hex, riskColor);
+      const marker =
+        impact === currentImpact && likelihood === currentLikelihood
+          ? `<span class="kri-matrix-marker kri-performance-${normalizePerformanceLevel(item.performance_level)}" title="${escapeHtml(safeText(item.risk_name, ""))}">
+              ${escapeHtml(safeText(item.kri_code, "KRI"))}
+            </span>`
+          : "";
+
+      cells.push(`
+        <div class="kri-matrix-cell" style="--cell-bg:${visual.background};--cell-border:${visual.border};--cell-accent:${visual.accent}">
+          <div class="kri-matrix-markers">${marker}</div>
+        </div>
+      `);
+    }
+  }
+
+  cells.push('<div class="kri-matrix-axis-spacer"><span>LIKELIHOOD</span></div>');
+  for (let impact = 1; impact <= 5; impact += 1) {
+    cells.push(`
+      <div class="kri-matrix-bottom-label">
+        <strong>${impact}</strong>
+        <span>${impactLabels[impact]}</span>
+      </div>
+    `);
+  }
+
+  return `
+    <div class="kri-risk-matrix" aria-label="Current KRI risk matrix position">
+      <div class="kri-matrix-grid">${cells.join("")}</div>
+      <div class="kri-matrix-impact-label">IMPACT</div>
+    </div>
+  `;
+}
+
+function renderKriPerformanceLegend() {
+  const container = document.querySelector("#kri-performance-legend-list");
+  if (!container) return;
+
+  container.innerHTML = KRI_PERFORMANCE_ORDER
+    .map((level) => {
+      const copy = KRI_PERFORMANCE_COPY[level];
+      return `
+        <div class="kri-legend-item kri-performance-${level}">
+          <span class="kri-performance-icon">${kriPerformanceIcon(level)}</span>
+          <div>
+            <strong>${escapeHtml(copy.label)}</strong>
+            <p>${escapeHtml(copy.summary)}</p>
+          </div>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderKriOverviewList(items) {
+  const container = document.querySelector("#kri-overview-list");
+  if (!container) return;
+
+  container.innerHTML = `
+    <div class="kri-overview-row kri-overview-head">
+      <span>KRI Code</span>
+      <span>KRI Name</span>
+      <span>Risk Type</span>
+      <span>Risk Level</span>
+      <span>Performance Level</span>
+      <span>Trend</span>
+      <span>Last Update</span>
+    </div>
+    ${items
+      .map((item) => {
+        const riskMeta = getKriRiskLevelMeta(item);
+        const level = normalizePerformanceLevel(item.performance_level);
+        const performanceLabel = getCompactPerformanceLabel(level, item.performance_label);
+        const trend = getKriTrendMeta(item.trend);
+        const kriCode = safeText(item.kri_code, "KRI");
+        const riskName = safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง");
+        return `
+          <div class="kri-overview-row" role="button" tabindex="0" data-kri-code="${escapeHtml(kriCode)}" aria-label="เปิดรายละเอียด KRI ${escapeHtml(kriCode)} ${escapeHtml(riskName)}">
+            <span><b class="kri-code">${escapeHtml(kriCode)}</b></span>
+            <span class="kri-overview-name">${escapeHtml(riskName)}</span>
+            <span>${escapeHtml(safeText(item.risk_type, "ไม่ระบุ"))}</span>
+            <span>
+              <b class="kri-risk-pill kri-risk-${getKriRiskKey(item)}" style="--kri-risk-color:${riskMeta.accent};--kri-risk-bg:${riskMeta.background};--kri-risk-border:${riskMeta.border}">
+                ${escapeHtml(getKriRiskLevelLabel(item))}
+              </b>
+            </span>
+            <span>
+              <b class="kri-performance-pill kri-performance-${level}">
+                <span class="kri-performance-icon">${kriPerformanceIcon(level)}</span>
+                ${escapeHtml(performanceLabel)}
+              </b>
+            </span>
+            <span>
+              <b class="kri-trend kri-trend-${trend.className}">
+                <span aria-hidden="true">${trend.icon}</span>
+                ${trend.label}
+              </b>
+            </span>
+            <span>${escapeHtml(formatKriLastUpdate(item.last_update))}</span>
+          </div>
+        `;
+      })
+      .join("")}
+  `;
+}
+
+function renderKriInsights(items) {
+  const container = document.querySelector("#kri-insights-summary");
+  if (!container) return;
+
+  const counts = getKriPerformanceCounts(items);
+  container.innerHTML = KRI_PERFORMANCE_ORDER
+    .map((level) => {
+      const copy = KRI_PERFORMANCE_COPY[level];
+      return `
+        <article class="kri-insight-card kri-performance-${level}">
+          <span class="kri-performance-icon">${kriPerformanceIcon(level)}</span>
+          <div>
+            <strong>${counts[level]} ตัว</strong>
+            <h3>${escapeHtml(copy.insight)}</h3>
+            <p>${escapeHtml(copy.summary)}</p>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderKriDashboard() {
+  const items = getKriHomeOrderedItems();
+  const empty = document.querySelector("#kri-dashboard-empty");
+  const content = document.querySelector("#kri-dashboard-content");
+
+  renderKriSummary(document.querySelector("#kri-dashboard-summary"), items);
+
+  if (items.length === 0) {
+    empty.hidden = false;
+    content.hidden = true;
+    return;
+  }
+
+  empty.hidden = true;
+  content.hidden = false;
+  renderKriMatrix(items);
+  renderKriPerformanceLegend();
+  renderKriOverviewList(items);
+  renderKriInsights(items);
+}
+
+function renderKriDetail(item) {
+  const content = document.querySelector("#kri-detail-content");
+  const backLabel = document.querySelector("#kri-detail-back-label");
+  if (!content || !item) return;
+
+  const kriCode = safeText(item.kri_code, "KRI");
+  const riskName = safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง");
+  const riskType = safeText(item.risk_type, "ไม่ระบุประเภทความเสี่ยง");
+  const riskMeta = getKriRiskLevelMeta(item);
+  const riskKey = getKriRiskKey(item);
+  const riskLabel = getKriRiskLevelLabel(item);
+  const performanceLevel = normalizePerformanceLevel(item.performance_level);
+  const performanceLabel = getCompactPerformanceLabel(performanceLevel, item.performance_label);
+  const trend = getKriTrendMeta(item.trend);
+  const impact = item.impact === null || item.impact === undefined || item.impact === "" ? "ไม่ระบุ" : String(item.impact);
+  const likelihood =
+    item.likelihood === null || item.likelihood === undefined || item.likelihood === ""
+      ? "ไม่ระบุ"
+      : String(item.likelihood);
+  const riskOwner = safeText(item.risk_owner, "ไม่ระบุ");
+  const lastUpdate = formatKriLastUpdate(item.last_update);
+  const groupedActions = getGroupedKriActions(item);
+  const actionGroupOrder = ["Existing Control", "Mitigation Plan"];
+  const actionGroups = Object.entries(groupedActions).sort(([a], [b]) => {
+    const orderA = actionGroupOrder.includes(a) ? actionGroupOrder.indexOf(a) : 99;
+    const orderB = actionGroupOrder.includes(b) ? actionGroupOrder.indexOf(b) : 99;
+    return orderA - orderB || a.localeCompare(b);
+  });
+
+  if (backLabel) {
+    backLabel.textContent =
+      kriDetailReturnView === "kri-dashboard" ? "กลับหน้า KRI Dashboard" : "กลับหน้าหลัก";
+  }
+
+  const metricItems = [
+    {
+      label: "Risk Level",
+      value: `<b class="kri-risk-pill kri-risk-${riskKey}" style="--kri-risk-color:${riskMeta.accent};--kri-risk-bg:${riskMeta.background};--kri-risk-border:${riskMeta.border}">${escapeHtml(riskLabel)}</b>`
+    },
+    { label: "Impact", value: escapeHtml(impact) },
+    {
+      label: "Trend",
+      value: `<b class="kri-trend kri-trend-${trend.className}"><span aria-hidden="true">${trend.icon}</span>${escapeHtml(trend.label)}</b>`
+    },
+    { label: "Likelihood", value: escapeHtml(likelihood) },
+    { label: "Last Update", value: escapeHtml(lastUpdate) },
+    { label: "Risk Owner", value: escapeHtml(riskOwner) }
+  ];
+  const miniMatrix = renderKriDetailMiniMatrix(item);
+
+  const actionContent =
+    actionGroups.length > 0
+      ? actionGroups
+          .map(
+            ([actionType, actions]) => `
+              <article class="kri-action-card">
+                <h3>${escapeHtml(actionType)}</h3>
+                <ul class="kri-action-list">
+                  ${actions
+                    .map(
+                      (action) => `
+                        <li class="kri-action-item">
+                          <span class="kri-action-dot" aria-hidden="true"></span>
+                          <p>${escapeHtml(safeText(action.action_text, "ไม่ระบุ"))}</p>
+                        </li>
+                      `
+                    )
+                    .join("")}
+                </ul>
+              </article>
+            `
+          )
+          .join("")
+      : '<div class="kri-detail-card kri-action-empty">ไม่มีข้อมูลมาตรการสำหรับ KRI นี้</div>';
+
+  const executiveNote = `${kriCode} สะท้อนประเด็น "${riskName}" โดยผลการดำเนินงานปัจจุบันอยู่ในระดับ ${performanceLabel} และมีระดับความเสี่ยง ${riskLabel}.`;
+
+  content.innerHTML = `
+    <header class="kri-detail-header">
+      <div class="kri-detail-copy">
+        <p class="kri-detail-kicker">ENTERPRISE RISK INDICATOR</p>
+        <h1 id="kri-detail-title" class="kri-detail-title">${escapeHtml(kriCode)}: ${escapeHtml(riskName)}</h1>
+        <p class="kri-detail-subtitle">${escapeHtml(riskType)}</p>
+      </div>
+    </header>
+
+    <div class="kri-detail-top-grid">
+      <section class="kri-detail-mini-matrix-card" aria-labelledby="kri-detail-matrix-heading">
+        <div class="section-heading">
+          <div>
+            <h2 id="kri-detail-matrix-heading">Risk Matrix Position</h2>
+            <p class="section-subtitle">ตำแหน่งของ KRI นี้ใน Risk Matrix</p>
+          </div>
+        </div>
+        <div class="kri-detail-mini-matrix">${miniMatrix}</div>
+      </section>
+
+      <div class="kri-detail-side-panel">
+        <aside class="kri-detail-status-card kri-performance-${performanceLevel}" aria-label="KRI performance level">
+          <span class="kri-performance-icon">${kriPerformanceIcon(performanceLevel)}</span>
+          <span>Performance Level</span>
+          <strong>${escapeHtml(performanceLabel)}</strong>
+          <p>${escapeHtml(KRI_PERFORMANCE_COPY[performanceLevel]?.summary || "")}</p>
+        </aside>
+        <section class="kri-detail-metrics" aria-label="KRI context metrics">
+          ${metricItems
+            .map(
+              (metric) => `
+                <article class="kri-detail-metric">
+                  <span>${escapeHtml(metric.label)}</span>
+                  <strong>${metric.value}</strong>
+                </article>
+              `
+            )
+            .join("")}
+        </section>
+      </div>
+    </div>
+
+    <section class="kri-detail-card kri-detail-description" aria-labelledby="kri-description-heading">
+      <p class="section-kicker">KRI PROFILE</p>
+      <h2 id="kri-description-heading">KRI Description</h2>
+      <p class="kri-formatted-text">${formatNumberedText(item.kri_description, "ไม่มีรายละเอียด KRI")}</p>
+    </section>
+
+    <section class="kri-criteria-grid" aria-label="Risk criteria">
+      <article class="kri-criteria-card kri-criteria-appetite">
+        <span class="kri-performance-icon">${kriPerformanceIcon("appetite")}</span>
+        <div>
+          <p class="section-kicker">TARGET THRESHOLD</p>
+          <h2>Risk Appetite</h2>
+          <span>เป้าหมายที่ต้องการ</span>
+          <p class="kri-formatted-text">${formatNumberedText(item.risk_appetite, "ไม่ระบุ")}</p>
+        </div>
+      </article>
+      <article class="kri-criteria-card kri-criteria-tolerance">
+        <span class="kri-performance-icon">${kriPerformanceIcon("tolerance")}</span>
+        <div>
+          <p class="section-kicker">ACCEPTABLE THRESHOLD</p>
+          <h2>Risk Tolerance</h2>
+          <span>ระดับที่ยอมรับได้</span>
+          <p class="kri-formatted-text">${formatNumberedText(item.risk_tolerance, "ไม่ระบุ")}</p>
+        </div>
+      </article>
+    </section>
+
+    <section class="kri-detail-card kri-actions-section" aria-labelledby="kri-actions-heading">
+      <div class="section-heading">
+        <h2 id="kri-actions-heading">Controls and Mitigation</h2>
+      </div>
+      <div class="kri-actions-grid">${actionContent}</div>
+    </section>
+
+    <aside class="kri-executive-note">
+      <p>${escapeHtml(executiveNote)}</p>
+    </aside>
+  `;
 }
 
 function renderKriSnapshot() {
@@ -1339,14 +2179,16 @@ function renderKriSnapshot() {
         performanceLevel,
         performanceLabel
       );
+      const kriCode = safeText(item.kri_code, "KRI");
+      const riskName = safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง");
 
       return `
-        <article class="kri-tile" style="--kri-risk-color:${riskVisual.accent};--kri-risk-bg:${riskVisual.background};--kri-risk-border:${riskVisual.border};--kri-risk-accent:${riskVisual.marker}">
+        <article class="kri-tile" role="button" tabindex="0" data-kri-code="${escapeHtml(kriCode)}" aria-label="เปิดรายละเอียด KRI ${escapeHtml(kriCode)} ${escapeHtml(riskName)}" style="--kri-risk-color:${riskVisual.accent};--kri-risk-bg:${riskVisual.background};--kri-risk-border:${riskVisual.border};--kri-risk-accent:${riskVisual.marker}">
           <div class="kri-tile-top">
-            <span class="kri-code">${escapeHtml(safeText(item.kri_code, "KRI"))}</span>
+            <span class="kri-code">${escapeHtml(kriCode)}</span>
             <span class="kri-risk-dot" aria-hidden="true"></span>
           </div>
-          <h3 class="kri-name">${escapeHtml(safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง"))}</h3>
+          <h3 class="kri-name">${escapeHtml(riskName)}</h3>
           <div class="kri-performance kri-performance-${performanceLevel}">
             <span class="kri-performance-icon">${kriPerformanceIcon(performanceLevel)}</span>
             <span>${escapeHtml(compactPerformanceLabel)}</span>

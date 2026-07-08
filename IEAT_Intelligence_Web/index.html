@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#f5f7fb">
   <meta name="description" content="IEAT Daily Intelligence executive briefing dashboard">
   <title>IEAT Intelligence</title>
-  <link rel="stylesheet" href="./style.css?v=31">
+  <link rel="stylesheet" href="./style.css?v=52">
 </head>
 <body>
   <div class="app-shell">
@@ -36,6 +36,7 @@
       </div>
       <nav class="drawer-nav" aria-label="ทางลัด">
         <button type="button" data-menu-action="today">ข่าววันนี้</button>
+        <button type="button" data-menu-action="erm">ERM Dashboard</button>
         <p class="drawer-label">ตาม category</p>
         <div class="drawer-categories">
           <button type="button" data-menu-category="Energy">Energy</button>
@@ -96,8 +97,11 @@
       <section class="content-section kri-snapshot-section" aria-labelledby="kri-snapshot-heading">
         <div class="section-heading">
           <div>
-            <h2 id="kri-snapshot-heading">KEY RISK INDICATORS (KRI) SNAPSHOT</h2>
+            <h2 id="kri-snapshot-heading">ENTERPRISE RISK MANAGEMENT (ERM) SNAPSHOT</h2>
           </div>
+          <button id="view-kri-dashboard" class="section-link" type="button">
+            ดูรายละเอียดทั้งหมด <span aria-hidden="true">→</span>
+          </button>
         </div>
         <div class="kri-snapshot-shell">
           <div id="kri-snapshot-list" class="kri-snapshot-list" aria-live="polite">
@@ -248,6 +252,87 @@
           <a href="https://ieat-daily-brief.pages.dev/" target="_blank" rel="noopener noreferrer">เปิดรายงานในหน้าใหม่</a>
         </p>
       </section>
+
+      <section id="kri-dashboard-view" class="subpage-view kri-dashboard-view" aria-labelledby="kri-dashboard-title" hidden>
+        <div class="detail-toolbar">
+          <button id="kri-dashboard-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+
+        <header class="kri-dashboard-header">
+          <div class="kri-dashboard-header-copy">
+            <p class="section-kicker">ENTERPRISE RISK MONITORING</p>
+            <h1 id="kri-dashboard-title">ENTERPRISE RISK MANAGEMENT (ERM) DASHBOARD</h1>
+            <p>ภาพรวมตัวชี้วัดความเสี่ยงสำคัญของ กนอ. ตามระดับความเสี่ยงและผลการดำเนินงาน</p>
+          </div>
+          <div id="kri-dashboard-summary" class="kri-dashboard-summary" aria-live="polite"></div>
+        </header>
+
+        <div id="kri-dashboard-empty" class="kri-dashboard-empty" hidden>
+          ยังไม่มีข้อมูล KRI สำหรับรอบนี้
+        </div>
+
+        <div id="kri-dashboard-content" class="kri-dashboard-content">
+          <section class="kri-matrix-section" aria-labelledby="kri-matrix-heading">
+            <div class="section-heading">
+              <div>
+                <h2 id="kri-matrix-heading">RISK MATRIX OVERVIEW</h2>
+                <p class="section-subtitle">ตำแหน่งของ KRI ใน Risk Matrix</p>
+              </div>
+              <div class="kri-risk-legend" aria-label="Risk matrix legend">
+                <span><i class="risk-dot risk-dot-low"></i>Low</span>
+                <span><i class="risk-dot risk-dot-medium"></i>Medium</span>
+                <span><i class="risk-dot risk-dot-high"></i>High</span>
+                <span><i class="risk-dot risk-dot-extreme"></i>Extreme</span>
+              </div>
+            </div>
+
+            <div class="kri-matrix-layout">
+              <div class="kri-matrix-shell">
+                <div id="kri-risk-matrix" class="kri-risk-matrix" aria-live="polite"></div>
+              </div>
+
+              <aside class="kri-performance-legend" aria-labelledby="kri-performance-legend-heading">
+                <h3 id="kri-performance-legend-heading">KRI PERFORMANCE LEVEL</h3>
+                <div id="kri-performance-legend-list"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="kri-overview-section" aria-labelledby="kri-overview-heading">
+            <div class="section-heading">
+              <h2 id="kri-overview-heading">KRI OVERVIEW LIST</h2>
+            </div>
+            <div class="kri-overview-table-shell">
+              <div id="kri-overview-list" class="kri-overview-table" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="kri-insights-section" aria-labelledby="kri-insights-heading">
+            <div class="section-heading">
+              <h2 id="kri-insights-heading">INSIGHTS SUMMARY</h2>
+            </div>
+            <div id="kri-insights-summary" class="kri-insights-summary" aria-live="polite"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="kri-detail-view" class="subpage-view kri-detail-view" aria-labelledby="kri-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="kri-detail-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span id="kri-detail-back-label">กลับ</span>
+          </button>
+        </div>
+
+        <div id="kri-detail-content" class="kri-detail-content" aria-live="polite"></div>
+      </section>
     </main>
 
     <nav class="bottom-nav" aria-label="เมนูหลัก">
@@ -257,6 +342,13 @@
           <path d="M5 10v10h14V10M9 20v-6h6v6"></path>
         </svg>
         <span>หน้าหลัก</span>
+      </button>
+      <button id="nav-erm" class="nav-item" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3 5 6v5c0 4.2 2.8 8 7 10 4.2-2 7-5.8 7-10V6l-7-3Z"></path>
+          <path d="M9 12h6M12 9v6"></path>
+        </svg>
+        <span>ERM</span>
       </button>
       <button id="nav-reports" class="nav-item" type="button">
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -274,6 +366,6 @@
     </nav>
   </div>
 
-  <script src="./app.js?v=17" defer></script>
+  <script src="./app.js?v=27" defer></script>
 </body>
 </html>
