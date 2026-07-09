@@ -3667,18 +3667,19 @@ body {
 .kri-tile {
   position: relative;
   display: flex;
-  min-height: 124px;
-  padding: 12px 11px 12px;
+  min-height: 128px;
+  padding: 19px 12px 14px;
   flex-direction: column;
   align-items: center;
+  justify-content: flex-start;
   overflow: hidden;
   border: 1px solid var(--kri-risk-border, #e4d7f0);
-  border-radius: 14px;
+  border-radius: 16px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.9)),
-    linear-gradient(135deg, var(--kri-risk-bg, rgba(102, 51, 163, 0.09)), rgba(255, 255, 255, 0.78));
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.96)),
+    linear-gradient(135deg, var(--kri-risk-bg, rgba(102, 51, 163, 0.08)), rgba(255, 255, 255, 0.82));
   box-shadow:
-    0 10px 22px rgba(36, 17, 63, 0.065),
+    0 12px 26px rgba(36, 17, 63, 0.065),
     0 1px 0 rgba(255, 255, 255, 0.95) inset;
   scroll-snap-align: start;
 }
@@ -3686,30 +3687,29 @@ body {
 .kri-tile::before {
   position: absolute;
   top: 0;
-  right: 18px;
-  left: 18px;
+  right: 20px;
+  left: 20px;
   height: 3px;
   border-radius: 0 0 999px 999px;
   background: var(--kri-risk-accent, var(--brand-700));
   content: "";
-  opacity: 0.82;
+  opacity: 0.78;
 }
 
 .kri-tile-top {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
   width: 100%;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
 }
 
 .kri-code {
   display: inline-flex;
   align-items: center;
-  min-height: 22px;
+  min-height: 24px;
   justify-content: center;
-  padding: 3px 9px;
+  padding: 3px 10px;
   border: 1px solid rgba(102, 51, 163, 0.14);
   border-radius: 999px;
   background: rgba(242, 236, 250, 0.82);
@@ -3719,25 +3719,42 @@ body {
   letter-spacing: 0.4px;
 }
 
-.kri-risk-dot {
+.kri-risk-indicator {
   position: absolute;
   top: 11px;
-  right: 10px;
+  right: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--kri-risk-color, var(--brand-700));
+  font-size: 9px;
+  font-weight: 850;
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+.kri-risk-dot {
+  display: inline-block;
   width: 7px;
   height: 7px;
+  flex: 0 0 auto;
   border-radius: 999px;
-  background: var(--kri-risk-color, var(--brand-700));
+  background: currentColor;
   box-shadow: 0 0 0 4px var(--kri-risk-bg, rgba(102, 51, 163, 0.1));
+}
+
+.kri-risk-label {
+  color: currentColor;
 }
 
 .kri-name {
   display: -webkit-box;
-  min-height: 31px;
-  margin: 0 0 8px;
+  min-height: 34px;
+  margin: 0 0 10px;
   overflow: hidden;
   color: var(--text-main);
-  font-size: 10.5px;
-  font-weight: 730;
+  font-size: 10.7px;
+  font-weight: 780;
   line-height: 1.42;
   text-align: center;
   -webkit-box-orient: vertical;
@@ -3746,10 +3763,11 @@ body {
 
 .kri-performance {
   display: flex;
+  min-width: 0;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
   margin-top: auto;
   max-width: 100%;
   color: #5f536e;
@@ -3757,6 +3775,25 @@ body {
   font-weight: 800;
   line-height: 1.35;
   text-align: center;
+}
+
+.kri-tile .kri-performance > span:last-child {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow-wrap: anywhere;
+}
+
+.kri-tile .kri-performance-icon {
+  width: 30px;
+  height: 30px;
+}
+
+.kri-tile .kri-performance-icon svg {
+  width: 17px;
+  height: 17px;
 }
 
 .kri-performance-icon {
@@ -4883,6 +4920,18 @@ body {
   padding: 18px;
 }
 
+.kri-detail-update {
+  background: linear-gradient(180deg, #fff 0%, #fbf9fe 100%);
+}
+
+.kri-detail-update .section-kicker {
+  color: var(--brand-700);
+}
+
+.kri-update-text {
+  overflow-wrap: anywhere;
+}
+
 .kri-detail-card h2,
 .kri-criteria-card h2,
 .kri-action-card h3 {
@@ -4894,6 +4943,7 @@ body {
 }
 
 .kri-detail-description p:last-child,
+.kri-detail-update p:last-child,
 .kri-criteria-card p:last-child,
 .kri-action-item p,
 .kri-executive-note p {
@@ -5351,6 +5401,7 @@ body {
   }
 
   .kri-detail-description p:last-child,
+  .kri-detail-update p:last-child,
   .kri-criteria-card p:last-child,
   .kri-action-item p,
   .kri-executive-note p {
@@ -5415,6 +5466,136 @@ body {
   }
 }
 
+@media (max-width: 767px) {
+  .kri-snapshot-shell {
+    overflow: visible;
+  }
+
+  .kri-snapshot-list {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    overflow-x: visible;
+    padding: 4px 2px 6px;
+    scroll-snap-type: none;
+    scrollbar-width: none;
+  }
+
+  .kri-snapshot-list::-webkit-scrollbar {
+    display: none;
+  }
+
+  .kri-tile {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    min-height: 76px;
+    padding: 10px 11px;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    align-items: center;
+    column-gap: 9px;
+    row-gap: 5px;
+    border-radius: 14px;
+  }
+
+  .kri-tile::before {
+    top: 10px;
+    bottom: 10px;
+    left: 0;
+    width: 3px;
+    height: auto;
+    border-radius: 0 999px 999px 0;
+    opacity: 0.62;
+  }
+
+  .kri-tile-top {
+    display: contents;
+    margin-bottom: 0;
+  }
+
+  .kri-tile .kri-code {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    min-width: 34px;
+    min-height: 24px;
+    align-self: center;
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  .kri-name {
+    grid-column: 2;
+    grid-row: 1;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    font-size: 11px;
+    line-height: 1.35;
+    text-align: left;
+    -webkit-line-clamp: 1;
+  }
+
+  .kri-risk-indicator {
+    position: static;
+    grid-column: 3;
+    grid-row: 1;
+    gap: 3px;
+    align-self: center;
+    justify-self: end;
+    font-size: 9px;
+  }
+
+  .kri-risk-dot {
+    width: 6px;
+    height: 6px;
+    box-shadow: 0 0 0 3px var(--kri-risk-bg, rgba(102, 51, 163, 0.1));
+  }
+
+  .kri-performance {
+    grid-column: 2 / 4;
+    grid-row: 2;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 6px;
+    margin-top: 0;
+    font-size: 9.5px;
+    text-align: left;
+  }
+
+  .kri-tile .kri-performance > span:last-child {
+    -webkit-line-clamp: 1;
+  }
+
+  .kri-tile .kri-performance-icon {
+    width: 22px;
+    height: 22px;
+  }
+
+  .kri-tile .kri-performance-icon svg {
+    width: 13px;
+    height: 13px;
+  }
+}
+
+@media (max-width: 340px) {
+  .kri-tile {
+    min-height: 82px;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .kri-risk-indicator {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: end;
+    font-size: 8.5px;
+  }
+
+  .kri-performance {
+    grid-column: 2;
+    padding-right: 58px;
+  }
+}
+
 @media (min-width: 768px) {
   .reports-view {
     max-width: 1040px;
@@ -5436,8 +5617,8 @@ body {
   }
 
   .kri-tile {
-    min-height: 128px;
-    padding: 12px 12px 13px;
+    min-height: 132px;
+    padding: 19px 12px 14px;
   }
 
   .kri-name {
@@ -5542,7 +5723,7 @@ body {
   }
 
   .kri-tile {
-    min-height: 130px;
+    min-height: 136px;
   }
 
   .kri-dashboard-view {

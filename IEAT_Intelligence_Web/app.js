@@ -1373,9 +1373,9 @@ const KRI_PERFORMANCE_COPY = {
     insight: "จำนวนที่อยู่ใน Risk Tolerance"
   },
   in_progress: {
-    label: "In Progress",
-    summary: "อยู่ระหว่างดำเนินงาน",
-    insight: "จำนวนที่อยู่ระหว่างดำเนินงาน"
+    label: "On Track",
+    summary: "ดำเนินงานได้ตามแผน",
+    insight: "จำนวนที่ดำเนินงานได้ตามแผน"
   },
   not_meet: {
     label: "Not Meet",
@@ -1510,7 +1510,7 @@ function normalizePerformanceLevel(value) {
 
 function kriPerformanceIcon(level) {
   if (level === "appetite") {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="4.2"></circle><circle cx="12" cy="12" r="1.2"></circle><path d="m15.5 6.5 2-2M17.5 4.5h-2M17.5 4.5v2"></path><path d="m8.4 12.3 2.1 2.1 4.7-5"></path></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path><path d="m9.2 12 1.8 1.8 3.9-4.2"></path></svg>';
   }
 
   if (level === "tolerance") {
@@ -1528,10 +1528,20 @@ function getCompactPerformanceLabel(level, fallbackLabel) {
   const labels = {
     appetite: "Risk Appetite",
     tolerance: "Risk Tolerance",
-    not_meet: "ไม่บรรลุ RA / RT",
-    in_progress: "อยู่ระหว่างดำเนินงาน"
+    in_progress: "On Track",
+    not_meet: "Not Meet"
   };
-  return labels[level] || safeText(fallbackLabel, "อยู่ระหว่างดำเนินงาน");
+  return labels[level] || safeText(fallbackLabel, "On Track");
+}
+
+function getThaiPerformanceLabel(level, fallbackLabel) {
+  const labels = {
+    appetite: "บรรลุเป้าหมาย",
+    tolerance: "อยู่ในระดับที่ยอมรับได้",
+    in_progress: "ดำเนินงานได้ตามแผน",
+    not_meet: "ไม่บรรลุเป้าหมาย RA / RT"
+  };
+  return labels[level] || safeText(fallbackLabel, "ไม่ระบุ");
 }
 
 function getKriItems() {
@@ -1684,7 +1694,8 @@ function formatNumberedText(value, fallback) {
   const text = safeText(value, fallback);
   return escapeHtml(text)
     .replace(/\s+(?=\d+\.\s)/g, "<br>")
-    .replace(/\s+(?=\d+\)\s)/g, "<br>");
+    .replace(/\s+(?=\d+\)\s)/g, "<br>")
+    .replace(/\s+(?=-\s)/g, "<br>");
 }
 
 function getFallbackMatrixRiskColor(impact, likelihood) {
@@ -1921,7 +1932,7 @@ function renderKriOverviewList(items) {
       .map((item) => {
         const riskMeta = getKriRiskLevelMeta(item);
         const level = normalizePerformanceLevel(item.performance_level);
-        const performanceLabel = getCompactPerformanceLabel(level, item.performance_label);
+        const performanceLabel = getThaiPerformanceLabel(level, item.performance_label);
         const trend = getKriTrendMeta(item.trend);
         const kriCode = safeText(item.kri_code, "KRI");
         const riskName = safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง");
@@ -1968,7 +1979,7 @@ function renderKriInsights(items) {
           <span class="kri-performance-icon">${kriPerformanceIcon(level)}</span>
           <div>
             <strong>${counts[level]} ตัว</strong>
-            <h3>${escapeHtml(copy.insight)}</h3>
+            <h3>${escapeHtml(copy.label)}</h3>
             <p>${escapeHtml(copy.summary)}</p>
           </div>
         </article>
@@ -2047,6 +2058,16 @@ function renderKriDetail(item) {
     { label: "Risk Owner", value: escapeHtml(riskOwner) }
   ];
   const miniMatrix = renderKriDetailMiniMatrix(item);
+  const updateText = safeText(item.update, "");
+  const updateSection = updateText
+    ? `
+      <section class="kri-detail-card kri-detail-update" aria-labelledby="kri-update-heading">
+        <p class="section-kicker">PROGRESS UPDATE</p>
+        <h2 id="kri-update-heading">Update</h2>
+        <p class="kri-formatted-text kri-update-text">${formatNumberedText(item.update, "")}</p>
+      </section>
+    `
+    : "";
 
   const actionContent =
     actionGroups.length > 0
@@ -2123,6 +2144,8 @@ function renderKriDetail(item) {
       <p class="kri-formatted-text">${formatNumberedText(item.kri_description, "ไม่มีรายละเอียด KRI")}</p>
     </section>
 
+    ${updateSection}
+
     <section class="kri-criteria-grid" aria-label="Risk criteria">
       <article class="kri-criteria-card kri-criteria-appetite">
         <span class="kri-performance-icon">${kriPerformanceIcon("appetite")}</span>
@@ -2175,18 +2198,22 @@ function renderKriSnapshot() {
         item.performance_label,
         "อยู่ระหว่างติดตาม"
       );
-      const compactPerformanceLabel = getCompactPerformanceLabel(
+      const compactPerformanceLabel = getThaiPerformanceLabel(
         performanceLevel,
         performanceLabel
       );
       const kriCode = safeText(item.kri_code, "KRI");
       const riskName = safeText(item.risk_name, "ไม่มีชื่อความเสี่ยง");
+      const riskLabel = getKriRiskLevelLabel(item);
 
       return `
         <article class="kri-tile" role="button" tabindex="0" data-kri-code="${escapeHtml(kriCode)}" aria-label="เปิดรายละเอียด KRI ${escapeHtml(kriCode)} ${escapeHtml(riskName)}" style="--kri-risk-color:${riskVisual.accent};--kri-risk-bg:${riskVisual.background};--kri-risk-border:${riskVisual.border};--kri-risk-accent:${riskVisual.marker}">
           <div class="kri-tile-top">
             <span class="kri-code">${escapeHtml(kriCode)}</span>
-            <span class="kri-risk-dot" aria-hidden="true"></span>
+            <span class="kri-risk-indicator" aria-label="Risk level ${escapeHtml(riskLabel)}">
+              <span class="kri-risk-label">${escapeHtml(riskLabel)}</span>
+              <span class="kri-risk-dot" aria-hidden="true"></span>
+            </span>
           </div>
           <h3 class="kri-name">${escapeHtml(riskName)}</h3>
           <div class="kri-performance kri-performance-${performanceLevel}">
