@@ -1514,7 +1514,7 @@ function kriPerformanceIcon(level) {
   }
 
   if (level === "tolerance") {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 5 6v5c0 4.5 2.9 8.2 7 10 4.1-1.8 7-5.5 7-10V6l-7-3Z"></path><path d="m9 12 2 2 4-5"></path></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path><path d="M12 7.2 15.6 8.6v2.9c0 2.1-1.4 4.2-3.6 5.2-2.2-1-3.6-3.1-3.6-5.2V8.6L12 7.2Z"></path></svg>';
   }
 
   if (level === "not_meet") {
@@ -1696,6 +1696,180 @@ function formatNumberedText(value, fallback) {
     .replace(/\s+(?=\d+\.\s)/g, "<br>")
     .replace(/\s+(?=\d+\)\s)/g, "<br>")
     .replace(/\s+(?=-\s)/g, "<br>");
+}
+
+function toMetricNumber(value) {
+  if (value === null || value === undefined || value === "") return NaN;
+  const number = Number(String(value).replace(/,/g, "").trim());
+  return Number.isFinite(number) ? number : NaN;
+}
+
+function formatMetricValue(value, unit = "") {
+  const number = toMetricNumber(value);
+  if (!Number.isFinite(number)) return "ไม่ระบุ";
+
+  const decimals = Math.abs(number) >= 100 ? 2 : 2;
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: decimals
+  }).format(number);
+}
+
+function formatMetricValueWithUnit(value, unit = "") {
+  const formattedValue = formatMetricValue(value);
+  const cleanUnit = safeText(unit, "");
+  if (!cleanUnit || formattedValue === "ไม่ระบุ") return escapeHtml(formattedValue);
+
+  const escapedValue = escapeHtml(formattedValue);
+  const escapedUnit = escapeHtml(cleanUnit);
+  const spacer = cleanUnit === "%" ? "" : " ";
+  return `<span class="financial-metric-value-number">${escapedValue}</span>${spacer}<span class="financial-metric-value-unit">${escapedUnit}</span>`;
+}
+
+function getMetricStatusDisplay(metric) {
+  const rawStatus = safeText(metric.status, "").toLowerCase();
+  const status = ["appetite", "tolerance", "not_meet", "in_progress"].includes(rawStatus)
+    ? rawStatus
+    : "unknown";
+  const fallback =
+    status === "unknown"
+      ? { label: "Unknown", summary: "ไม่ระบุ" }
+      : KRI_PERFORMANCE_COPY[status] || KRI_PERFORMANCE_COPY.in_progress;
+  return {
+    status,
+    label: safeText(metric.status_label, fallback.label),
+    labelTh: safeText(metric.status_label_th, fallback.summary)
+  };
+}
+
+function getMetricChartScale(metric) {
+  const actual = toMetricNumber(metric.actual_value);
+  const appetite = toMetricNumber(metric.risk_appetite_value);
+  const tolerance = toMetricNumber(metric.risk_tolerance_value);
+  const values = [actual, appetite, tolerance].filter(Number.isFinite);
+  if (values.length < 3) return null;
+
+  const rawMin = Math.min(...values);
+  const rawMax = Math.max(...values);
+  const range = rawMax - rawMin || Math.max(Math.abs(rawMax), 1);
+  const min = Math.max(0, rawMin - range * 0.35);
+  const max = rawMax + range * 0.35;
+  const span = max - min || 1;
+  const pct = (value) => Math.max(0, Math.min(100, ((value - min) / span) * 100));
+
+  return {
+    actual,
+    appetite,
+    tolerance,
+    min,
+    max,
+    actualPct: pct(actual),
+    appetitePct: pct(appetite),
+    tolerancePct: pct(tolerance)
+  };
+}
+
+function getMetricIcon(metricKey) {
+  const key = safeText(metricKey, "").toLowerCase();
+  if (key.includes("revenue")) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V9"></path><path d="M10 19V5"></path><path d="M16 19v-7"></path><path d="M21 19H3"></path><path d="m14 7 3-3 3 3"></path></svg>';
+  }
+  if (key.includes("ebitda") || key.includes("margin")) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v9h9"></path><path d="M19.1 16.7A8 8 0 1 1 7.3 4.9"></path><path d="M7 17 17 7"></path></svg>';
+  }
+  if (key.includes("cost")) {
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5 5 19"></path><circle cx="7.5" cy="7.5" r="2.5"></circle><circle cx="16.5" cy="16.5" r="2.5"></circle></svg>';
+  }
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16"></path><path d="M6 16l4-4 3 3 5-7"></path><path d="M18 8h-4"></path><path d="M18 8v4"></path></svg>';
+}
+
+function renderFinancialMetricChart(metric) {
+  const scale = getMetricChartScale(metric);
+  if (!scale) {
+    return '<div class="financial-chart-empty">ไม่พบข้อมูลกราฟ</div>';
+  }
+
+  const direction = safeText(metric.direction, "higher_is_better");
+  const lowerIsBetter = direction === "lower_is_better";
+  const first = lowerIsBetter ? scale.appetitePct : scale.tolerancePct;
+  const second = lowerIsBetter ? scale.tolerancePct : scale.appetitePct;
+  const thresholdDistance = Math.abs(scale.appetitePct - scale.tolerancePct);
+  const closeThresholdClass = thresholdDistance < 12 ? " financial-threshold-chart-close" : "";
+  const segments = [
+    { className: lowerIsBetter ? "zone-appetite" : "zone-not-meet", width: Math.max(first, 0) },
+    { className: "zone-tolerance", width: Math.max(second - first, 0) },
+    { className: lowerIsBetter ? "zone-not-meet" : "zone-appetite", width: Math.max(100 - second, 0) }
+  ];
+
+  return `
+    <div class="financial-threshold-chart${closeThresholdClass}" style="--actual-pct:${scale.actualPct}%;--ra-pct:${scale.appetitePct}%;--rt-pct:${scale.tolerancePct}%">
+      <div class="financial-threshold-markers" aria-hidden="true">
+        <span class="threshold-marker threshold-marker-rt" style="left:${scale.tolerancePct}%">RT ${escapeHtml(formatMetricValue(scale.tolerance))}</span>
+        <span class="threshold-marker threshold-marker-ra" style="left:${scale.appetitePct}%">RA ${escapeHtml(formatMetricValue(scale.appetite))}</span>
+      </div>
+      <div class="financial-threshold-bar">
+        ${segments
+          .map((segment) => `<span class="${segment.className}" style="width:${segment.width}%"></span>`)
+          .join("")}
+      </div>
+      <div class="financial-current-track">
+        <span class="financial-current-value" style="width:${scale.actualPct}%"></span>
+      </div>
+      <div class="financial-axis">
+        <span>${escapeHtml(formatMetricValue(scale.min))}</span>
+        <span>${escapeHtml(formatMetricValue(scale.max))}</span>
+      </div>
+    </div>
+  `;
+}
+
+function renderFinancialMetricRow(metric, index) {
+  const status = getMetricStatusDisplay(metric);
+  const unit = safeText(metric.unit, "");
+  return `
+    <article class="financial-metric-row">
+      <div class="financial-metric-heading">
+        <span class="financial-metric-icon">${getMetricIcon(metric.metric_key)}</span>
+        <div>
+          <h3>${index + 1}. ${escapeHtml(safeText(metric.metric_name, "Metric"))}</h3>
+        </div>
+      </div>
+      <strong class="financial-metric-value">${formatMetricValueWithUnit(metric.actual_value, unit)}</strong>
+      ${renderFinancialMetricChart(metric)}
+      <div class="financial-status financial-status-${status.status}">
+        <strong>${escapeHtml(status.label)}</strong>
+        <span>${escapeHtml(status.labelTh)}</span>
+      </div>
+    </article>
+  `;
+}
+
+function renderFinancialThresholdCard(item) {
+  const code = normalizeKriCode(item.kri_code);
+  const metrics = Array.isArray(item.metrics) ? item.metrics : [];
+  if (code !== "F1" || metrics.length === 0) return "";
+
+  const sortedMetrics = [...metrics].sort(
+    (a, b) => Number(a.display_order || 999) - Number(b.display_order || 999)
+  );
+
+  return `
+    <section class="kri-detail-card financial-threshold-card" aria-labelledby="financial-threshold-heading">
+      <div class="financial-threshold-header">
+        <h2 id="financial-threshold-heading">FINANCIAL THRESHOLD STATUS (F1)</h2>
+        <p>สถานะผลดำเนินงานเทียบกับ Risk Appetite (RA) และ Risk Tolerance (RT)</p>
+      </div>
+      <div class="financial-metric-list">
+        ${sortedMetrics.map((metric, index) => renderFinancialMetricRow(metric, index)).join("")}
+      </div>
+      <div class="financial-threshold-legend" aria-label="Financial threshold legend">
+        <span><i class="legend-appetite"></i>อยู่ในระดับ Risk Appetite</span>
+        <span><i class="legend-tolerance"></i>อยู่ในระดับ Risk Tolerance</span>
+        <span><i class="legend-not-meet"></i>ไม่บรรลุระดับที่ยอมรับได้</span>
+        <span><i class="legend-current"></i>ค่าปัจจุบัน</span>
+      </div>
+    </section>
+  `;
 }
 
 function getFallbackMatrixRiskColor(impact, likelihood) {
@@ -2068,6 +2242,15 @@ function renderKriDetail(item) {
       </section>
     `
     : "";
+  const financialThresholdSection = renderFinancialThresholdCard(item);
+  const updateAndFinancialSection = financialThresholdSection
+    ? `
+      <div class="kri-detail-update-financial-grid">
+        ${updateSection}
+        ${financialThresholdSection}
+      </div>
+    `
+    : updateSection;
 
   const actionContent =
     actionGroups.length > 0
@@ -2144,7 +2327,7 @@ function renderKriDetail(item) {
       <p class="kri-formatted-text">${formatNumberedText(item.kri_description, "ไม่มีรายละเอียด KRI")}</p>
     </section>
 
-    ${updateSection}
+    ${updateAndFinancialSection}
 
     <section class="kri-criteria-grid" aria-label="Risk criteria">
       <article class="kri-criteria-card kri-criteria-appetite">
@@ -2155,6 +2338,10 @@ function renderKriDetail(item) {
           <span>เป้าหมายที่ต้องการ</span>
           <p class="kri-formatted-text">${formatNumberedText(item.risk_appetite, "ไม่ระบุ")}</p>
         </div>
+        <svg class="kri-threshold-watermark" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M60 16 92 28v25c0 23.8-13.1 42.6-32 51-18.9-8.4-32-27.2-32-51V28l32-12Z"></path>
+          <path d="m45 61 10.5 10.5L77 48"></path>
+        </svg>
       </article>
       <article class="kri-criteria-card kri-criteria-tolerance">
         <span class="kri-performance-icon">${kriPerformanceIcon("tolerance")}</span>
@@ -2164,6 +2351,10 @@ function renderKriDetail(item) {
           <span>ระดับที่ยอมรับได้</span>
           <p class="kri-formatted-text">${formatNumberedText(item.risk_tolerance, "ไม่ระบุ")}</p>
         </div>
+        <svg class="kri-threshold-watermark" viewBox="0 0 120 120" aria-hidden="true">
+          <path d="M60 15 94 28v25.5c0 24.5-13.8 43.8-34 52.5-20.2-8.7-34-28-34-52.5V28l34-13Z"></path>
+          <path d="M60 40 77 47v13c0 12.4-6.9 22-17 27-10.1-5-17-14.6-17-27V47l17-7Z"></path>
+        </svg>
       </article>
     </section>
 

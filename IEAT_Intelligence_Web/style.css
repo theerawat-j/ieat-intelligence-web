@@ -4932,6 +4932,355 @@ body {
   overflow-wrap: anywhere;
 }
 
+.kri-detail-update-financial-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.34fr) minmax(0, 0.66fr);
+  gap: 14px;
+  align-items: stretch;
+}
+
+.kri-detail-update-financial-grid > .financial-threshold-card:only-child {
+  grid-column: 1 / -1;
+}
+
+.financial-threshold-card {
+  overflow: hidden;
+  border-color: rgba(102, 51, 163, 0.18);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(123, 75, 194, 0.055), transparent 34%),
+    rgba(255, 255, 255, 0.96);
+}
+
+.financial-threshold-header h2 {
+  margin: 0;
+  color: var(--brand-800);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.018em;
+}
+
+.financial-threshold-header p {
+  margin: 5px 0 0;
+  color: #6b5f7a;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.55;
+}
+
+.financial-metric-list {
+  display: grid;
+  margin-top: 14px;
+}
+
+.financial-metric-row {
+  display: grid;
+  grid-template-columns: minmax(132px, 0.84fr) minmax(124px, 0.5fr) minmax(240px, 1.82fr) minmax(116px, 0.62fr);
+  column-gap: 18px;
+  row-gap: 13px;
+  align-items: center;
+  padding: 14px 0;
+  border-top: 1px solid rgba(102, 51, 163, 0.105);
+}
+
+.financial-metric-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.financial-metric-heading {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 11px;
+  align-items: center;
+}
+
+.financial-metric-icon {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(102, 51, 163, 0.12), rgba(242, 236, 250, 0.88));
+  color: var(--brand-700);
+}
+
+.financial-metric-icon svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.financial-metric-heading h3 {
+  margin: 0;
+  color: #16112a;
+  font-size: 13px;
+  font-weight: 780;
+  line-height: 1.35;
+}
+
+.financial-metric-heading p {
+  margin: 4px 0 0;
+  color: #706680;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.financial-metric-value {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  justify-self: start;
+  gap: 4px;
+  min-width: 116px;
+  color: #16112a;
+  font-size: 19px;
+  font-weight: 780;
+  line-height: 1.1;
+  white-space: normal;
+}
+
+.financial-metric-value-number {
+  white-space: nowrap;
+}
+
+.financial-metric-value-unit {
+  color: #5f536e;
+  font-size: 0.66em;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.financial-threshold-chart {
+  position: relative;
+  min-width: 0;
+  padding-top: 22px;
+}
+
+.financial-threshold-markers {
+  position: relative;
+  height: 18px;
+}
+
+.threshold-marker {
+  position: absolute;
+  bottom: 0;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-weight: 760;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.threshold-marker::after {
+  position: absolute;
+  top: 13px;
+  left: 50%;
+  width: 1px;
+  height: 30px;
+  border-left: 1px dashed currentColor;
+  content: "";
+  opacity: 0.55;
+}
+
+.threshold-marker-rt {
+  color: #f24b5b;
+}
+
+.threshold-marker-ra {
+  color: #12985a;
+}
+
+.financial-threshold-chart-close .threshold-marker-rt {
+  transform: translateX(-100%);
+}
+
+.financial-threshold-chart-close .threshold-marker-rt::after {
+  left: 100%;
+}
+
+.financial-threshold-chart-close .threshold-marker-ra {
+  transform: translateX(0);
+}
+
+.financial-threshold-chart-close .threshold-marker-ra::after {
+  left: 0;
+}
+
+.financial-threshold-bar,
+.financial-current-track {
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.financial-threshold-bar {
+  display: flex;
+  height: 6px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72) inset;
+}
+
+.financial-threshold-bar span {
+  min-width: 0;
+}
+
+.zone-appetite {
+  background: #16a34a;
+}
+
+.zone-tolerance {
+  background: #f4b91e;
+}
+
+.zone-not-meet {
+  background: #f24b5b;
+}
+
+.financial-current-track {
+  height: 5px;
+  margin-top: 4px;
+  background: rgba(36, 17, 63, 0.08);
+}
+
+.financial-current-value {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #6d28d9, #5b2bcb);
+  box-shadow: 0 3px 8px rgba(91, 43, 203, 0.16);
+}
+
+.financial-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  color: #655b77;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.financial-chart-empty {
+  color: #7a6f8f;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.financial-status {
+  display: grid;
+  justify-items: end;
+  gap: 5px;
+  text-align: right;
+}
+
+.financial-status strong {
+  display: inline-flex;
+  padding: 6px 11px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 760;
+  line-height: 1;
+}
+
+.financial-status span {
+  color: #5f536e;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.financial-status-appetite {
+  color: #14924f;
+}
+
+.financial-status-appetite strong {
+  background: rgba(22, 163, 74, 0.12);
+  border-color: rgba(22, 163, 74, 0.12);
+}
+
+.financial-status-tolerance {
+  color: #ca8a04;
+}
+
+.financial-status-tolerance strong {
+  background: rgba(234, 179, 8, 0.14);
+  border-color: rgba(234, 179, 8, 0.14);
+}
+
+.financial-status-not_meet {
+  color: #dc2626;
+}
+
+.financial-status-not_meet strong {
+  background: rgba(220, 38, 38, 0.11);
+  border-color: rgba(220, 38, 38, 0.11);
+}
+
+.financial-status-in_progress {
+  color: #0284c7;
+}
+
+.financial-status-in_progress strong {
+  background: rgba(14, 165, 233, 0.12);
+  border-color: rgba(14, 165, 233, 0.12);
+}
+
+.financial-status-unknown {
+  color: #7a6f8f;
+}
+
+.financial-status-unknown strong {
+  background: rgba(122, 111, 143, 0.11);
+  border-color: rgba(122, 111, 143, 0.11);
+}
+
+.financial-threshold-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 12px;
+  padding: 10px 11px;
+  border: 1px solid rgba(102, 51, 163, 0.1);
+  border-radius: 14px;
+  background: rgba(248, 244, 253, 0.46);
+}
+
+.financial-threshold-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5f536e;
+  font-size: 10.5px;
+  font-weight: 650;
+}
+
+.financial-threshold-legend i {
+  width: 11px;
+  height: 11px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.8);
+}
+
+.legend-appetite {
+  background: #16a34a;
+}
+
+.legend-tolerance {
+  background: #f5b51b;
+}
+
+.legend-not-meet {
+  background: #ff4d5a;
+}
+
+.legend-current {
+  height: 6px !important;
+  border-radius: 999px !important;
+  background: #5b2bcb;
+}
+
 .kri-detail-card h2,
 .kri-criteria-card h2,
 .kri-action-card h3 {
@@ -4965,14 +5314,33 @@ body {
 }
 
 .kri-criteria-card {
+  position: relative;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 13px;
-  padding: 17px;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 20px;
+}
+
+.kri-criteria-card > .kri-performance-icon,
+.kri-criteria-card > div {
+  position: relative;
+  z-index: 1;
 }
 
 .kri-criteria-card > .kri-performance-icon {
   margin-top: 2px;
+}
+
+.kri-criteria-appetite > .kri-performance-icon {
+  background: rgba(22, 163, 74, 0.12);
+  color: #16a34a;
+}
+
+.kri-criteria-tolerance > .kri-performance-icon {
+  background: rgba(234, 179, 8, 0.12);
+  color: #ca8a04;
 }
 
 .kri-criteria-card span:not(.kri-performance-icon) {
@@ -4984,13 +5352,47 @@ body {
 }
 
 .kri-criteria-appetite {
-  border-color: rgba(22, 163, 74, 0.2);
-  background: linear-gradient(135deg, rgba(236, 253, 245, 0.95), rgba(255, 255, 255, 0.88));
+  border-color: rgba(22, 163, 74, 0.22);
+  background:
+    radial-gradient(circle at 92% 66%, rgba(22, 163, 74, 0.1), transparent 34%),
+    linear-gradient(135deg, rgba(236, 253, 245, 0.98), rgba(240, 253, 250, 0.84), rgba(255, 255, 255, 0.94));
+  box-shadow:
+    0 18px 40px rgba(22, 163, 74, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset;
 }
 
 .kri-criteria-tolerance {
-  border-color: rgba(217, 119, 6, 0.2);
-  background: linear-gradient(135deg, rgba(255, 251, 235, 0.96), rgba(255, 255, 255, 0.88));
+  border-color: rgba(217, 119, 6, 0.22);
+  background:
+    radial-gradient(circle at 92% 66%, rgba(217, 119, 6, 0.1), transparent 34%),
+    linear-gradient(135deg, rgba(255, 251, 235, 0.98), rgba(255, 247, 237, 0.84), rgba(255, 255, 255, 0.94));
+  box-shadow:
+    0 18px 40px rgba(217, 119, 6, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.95) inset;
+}
+
+.kri-threshold-watermark {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  z-index: 0;
+  width: 156px;
+  height: 156px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 5;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.kri-criteria-appetite .kri-threshold-watermark {
+  color: rgba(22, 163, 74, 0.075);
+}
+
+.kri-criteria-tolerance .kri-threshold-watermark {
+  color: rgba(217, 119, 6, 0.075);
 }
 
 .kri-actions-section .section-heading {
@@ -5295,6 +5697,93 @@ body {
   .kri-executive-note {
     min-width: 0;
     padding: 14px;
+  }
+
+  .kri-detail-update-financial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-threshold-card {
+    padding: 13px;
+  }
+
+  .financial-threshold-header h2 {
+    font-size: 15.5px;
+  }
+
+  .financial-threshold-header p {
+    font-size: 11.5px;
+  }
+
+  .financial-metric-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 9px 11px;
+    padding: 13px 0;
+  }
+
+  .financial-metric-heading {
+    min-width: 0;
+  }
+
+  .financial-metric-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+  }
+
+  .financial-metric-icon svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .financial-metric-heading h3 {
+    font-size: 12.5px;
+  }
+
+  .financial-metric-value {
+    justify-self: end;
+    min-width: 0;
+    max-width: 128px;
+    justify-content: flex-end;
+    font-size: 17px;
+    text-align: right;
+  }
+
+  .financial-threshold-chart {
+    grid-column: 1 / -1;
+    padding-top: 20px;
+  }
+
+  .financial-status {
+    grid-column: 1 / -1;
+    justify-items: start;
+    text-align: left;
+  }
+
+  .threshold-marker {
+    font-size: 9.2px;
+  }
+
+  .financial-axis {
+    font-size: 9.5px;
+  }
+
+  .financial-threshold-legend {
+    gap: 8px 12px;
+    padding: 10px;
+  }
+
+  .financial-threshold-legend span {
+    font-size: 10.2px;
+  }
+
+  .kri-threshold-watermark {
+    right: 6px;
+    top: 50%;
+    width: 112px;
+    height: 112px;
+    stroke-width: 5.5;
+    transform: translateY(-50%);
   }
 
   .kri-detail-mini-matrix-card .section-heading h2,
