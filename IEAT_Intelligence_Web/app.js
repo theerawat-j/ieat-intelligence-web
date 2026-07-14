@@ -32,6 +32,14 @@ let currentCategory = "";
 let newsDetailOrigin = "home";
 let kriDetailReturnView = "home";
 let menuCloseTimer = null;
+let swipeBackGesture = null;
+let swipeBackListenersBound = false;
+
+const SWIPE_BACK_EDGE_WIDTH = 24;
+const SWIPE_BACK_DISTANCE = 90;
+const SWIPE_BACK_MAX_VERTICAL_DRIFT = 70;
+const SWIPE_BACK_MAX_DURATION = 800;
+const SWIPE_BACK_HORIZONTAL_RATIO = 1.25;
 
 const CATEGORY_META = {
   Energy: {
@@ -418,6 +426,7 @@ function renderCategoryNews(category) {
 }
 
 function showCategoryDetail(category, updateHash = true) {
+  resetSwipeBackGesture();
   const selectedCategory = normalizeCategory(category);
   if (!selectedCategory || !briefingData) return;
 
@@ -461,6 +470,7 @@ function showCategoryDetail(category, updateHash = true) {
 }
 
 function showHome(updateHash = true) {
+  resetSwipeBackGesture();
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
@@ -559,6 +569,7 @@ function renderTodayHeadlines() {
 }
 
 function showTodayHeadlines() {
+  resetSwipeBackGesture();
   renderTodayHeadlines();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
@@ -769,6 +780,7 @@ function renderNewsDetail(item) {
 function showNewsDetail(item, origin) {
   if (!item) return;
 
+  resetSwipeBackGesture();
   newsDetailOrigin = origin;
   renderNewsDetail(item);
   document.querySelector("#home-view").hidden = true;
@@ -805,6 +817,15 @@ function backFromNewsDetail() {
     return;
   }
 
+  showHome(false);
+}
+
+function backFromCategoryDetail() {
+  showHome(false);
+  history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+}
+
+function backFromTodayHeadlines() {
   showHome(false);
 }
 
@@ -938,6 +959,7 @@ function renderWatchlist() {
 }
 
 function showWatchlist() {
+  resetSwipeBackGesture();
   renderWatchlist();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
@@ -954,6 +976,7 @@ function showWatchlist() {
 }
 
 function showReports() {
+  resetSwipeBackGesture();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
@@ -969,6 +992,7 @@ function showReports() {
 }
 
 function showKriDashboard() {
+  resetSwipeBackGesture();
   renderKriDashboard();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
@@ -988,6 +1012,7 @@ function showKriDetail(kriCode, returnView = "home") {
   const item = getKriItemByCode(kriCode);
   if (!item) return;
 
+  resetSwipeBackGesture();
   kriDetailReturnView = returnView;
   renderKriDetail(item);
   document.querySelector("#home-view").hidden = true;
@@ -1011,6 +1036,147 @@ function backFromKriDetail() {
   }
 
   showHome(false);
+}
+
+function resetSwipeBackGesture() {
+  swipeBackGesture = null;
+}
+
+function getSwipeBackAction() {
+  const newsDetailView = document.querySelector("#news-detail-view");
+  if (newsDetailView && !newsDetailView.hidden) return backFromNewsDetail;
+
+  const categoryView = document.querySelector("#category-view");
+  if (categoryView && !categoryView.hidden) return backFromCategoryDetail;
+
+  const todayView = document.querySelector("#today-headlines-view");
+  if (todayView && !todayView.hidden) return backFromTodayHeadlines;
+
+  const kriDetailView = document.querySelector("#kri-detail-view");
+  if (kriDetailView && !kriDetailView.hidden) return backFromKriDetail;
+
+  return null;
+}
+
+function canSwipeBack() {
+  const isMobileLayout = window.matchMedia("(max-width: 767px)").matches;
+  const hasTouch = navigator.maxTouchPoints > 0 || "ontouchstart" in window;
+  const menu = document.querySelector("#app-menu");
+
+  return isMobileLayout && hasTouch && !menu?.classList.contains("open") && Boolean(getSwipeBackAction());
+}
+
+function shouldIgnoreSwipeBackTarget(target) {
+  const element = target instanceof Element ? target : target?.parentElement;
+  if (!element) return true;
+
+  if (
+    element.closest(
+      'input, textarea, select, button, a, iframe, canvas, video, audio, [contenteditable="true"], [role="slider"], .no-swipe-back'
+    )
+  ) {
+    return true;
+  }
+
+  let current = element;
+  while (current && current !== document.documentElement) {
+    const style = window.getComputedStyle(current);
+    const canScrollHorizontally =
+      current.scrollWidth > current.clientWidth + 1 && /^(auto|scroll)$/.test(style.overflowX);
+
+    if (canScrollHorizontally) return true;
+    current = current.parentElement;
+  }
+
+  return false;
+}
+
+function performSafeBackNavigation() {
+  const action = getSwipeBackAction();
+  resetSwipeBackGesture();
+  if (action) action();
+}
+
+function bindSwipeBackGesture() {
+  if (swipeBackListenersBound) return;
+  swipeBackListenersBound = true;
+
+  document.addEventListener(
+    "touchstart",
+    (event) => {
+      resetSwipeBackGesture();
+      if (event.defaultPrevented || event.touches.length !== 1 || !canSwipeBack()) return;
+
+      const touch = event.touches[0];
+      if (touch.clientX > SWIPE_BACK_EDGE_WIDTH || shouldIgnoreSwipeBackTarget(event.target)) return;
+
+      swipeBackGesture = {
+        startX: touch.clientX,
+        startY: touch.clientY,
+        startTime: Date.now(),
+        cancelled: false,
+        fired: false
+      };
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "touchmove",
+    (event) => {
+      if (!swipeBackGesture || event.touches.length !== 1) return;
+
+      const touch = event.touches[0];
+      const deltaX = touch.clientX - swipeBackGesture.startX;
+      const deltaY = touch.clientY - swipeBackGesture.startY;
+      const verticalDrift = Math.abs(deltaY);
+
+      if (
+        deltaX < -10 ||
+        verticalDrift > SWIPE_BACK_MAX_VERTICAL_DRIFT ||
+        (verticalDrift > 18 && verticalDrift >= Math.max(deltaX, 0) * 0.8)
+      ) {
+        swipeBackGesture.cancelled = true;
+      }
+    },
+    { passive: true }
+  );
+
+  document.addEventListener(
+    "touchend",
+    (event) => {
+      if (!swipeBackGesture || swipeBackGesture.fired || event.changedTouches.length !== 1) {
+        resetSwipeBackGesture();
+        return;
+      }
+
+      const gesture = swipeBackGesture;
+      const touch = event.changedTouches[0];
+      const deltaX = touch.clientX - gesture.startX;
+      const deltaY = touch.clientY - gesture.startY;
+      const verticalDrift = Math.abs(deltaY);
+      const duration = Date.now() - gesture.startTime;
+      const isValidSwipe =
+        !gesture.cancelled &&
+        duration <= SWIPE_BACK_MAX_DURATION &&
+        deltaX >= SWIPE_BACK_DISTANCE &&
+        deltaX > verticalDrift * SWIPE_BACK_HORIZONTAL_RATIO &&
+        verticalDrift <= SWIPE_BACK_MAX_VERTICAL_DRIFT &&
+        canSwipeBack();
+
+      if (!isValidSwipe) {
+        resetSwipeBackGesture();
+        return;
+      }
+
+      gesture.fired = true;
+      performSafeBackNavigation();
+    },
+    { passive: true }
+  );
+
+  document.addEventListener("touchcancel", resetSwipeBackGesture, { passive: true });
+  window.addEventListener("blur", resetSwipeBackGesture);
 }
 
 function openMenu() {
@@ -1066,10 +1232,7 @@ function bindNavigation() {
     if (row) showCategoryDetail(row.dataset.category);
   });
 
-  document.querySelector("#category-back").addEventListener("click", () => {
-    showHome(false);
-    history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
-  });
+  document.querySelector("#category-back").addEventListener("click", backFromCategoryDetail);
 
   document.querySelector("#category-news-list").addEventListener("click", (event) => {
     const card = event.target.closest("[data-news-theme]");
@@ -1097,7 +1260,7 @@ function bindNavigation() {
   });
 
   document.querySelector("#view-all-headlines").addEventListener("click", showTodayHeadlines);
-  document.querySelector("#today-headlines-back").addEventListener("click", () => showHome(false));
+  document.querySelector("#today-headlines-back").addEventListener("click", backFromTodayHeadlines);
   document.querySelector("#news-detail-back").addEventListener("click", backFromNewsDetail);
   document.querySelector("#watchlist-back").addEventListener("click", () => showHome(false));
   document.querySelector("#reports-back").addEventListener("click", () => showHome(false));
@@ -1209,6 +1372,8 @@ function bindNavigation() {
       showHome(false);
     }
   });
+
+  bindSwipeBackGesture();
 }
 
 function renderHeadlines(items) {
