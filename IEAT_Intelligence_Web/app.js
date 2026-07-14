@@ -1911,16 +1911,16 @@ function renderKriMatrix(items) {
   const matrix = getKriRiskMatrix();
   const likelihoodLabels = {
     5: "สูงมาก",
-    4: "ค่อนข้างสูง",
+    4: "สูง",
     3: "ปานกลาง",
-    2: "ค่อนข้างต่ำ",
-    1: "น้อยมาก"
+    2: "ต่ำ",
+    1: "ต่ำมาก"
   };
   const impactLabels = {
-    1: "น้อยมาก",
-    2: "ค่อนข้างต่ำ",
+    1: "ต่ำมาก",
+    2: "ต่ำ",
     3: "ปานกลาง",
-    4: "ค่อนข้างสูง",
+    4: "สูง",
     5: "สูงมาก"
   };
 
@@ -2003,16 +2003,16 @@ function renderKriDetailMiniMatrix(item) {
   const currentLikelihood = Number(item.likelihood);
   const likelihoodLabels = {
     5: "สูงมาก",
-    4: "ค่อนข้างสูง",
+    4: "สูง",
     3: "ปานกลาง",
-    2: "ค่อนข้างต่ำ",
-    1: "น้อยมาก"
+    2: "ต่ำ",
+    1: "ต่ำมาก"
   };
   const impactLabels = {
-    1: "น้อยมาก",
-    2: "ค่อนข้างต่ำ",
+    1: "ต่ำมาก",
+    2: "ต่ำ",
     3: "ปานกลาง",
-    4: "ค่อนข้างสูง",
+    4: "สูง",
     5: "สูงมาก"
   };
 
