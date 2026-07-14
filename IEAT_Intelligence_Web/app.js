@@ -1943,8 +1943,10 @@ function renderKriMatrix(items) {
       const cell = findKriMatrixCell(matrix, impact, likelihood);
       const riskColor = cell?.risk_color || getFallbackMatrixRiskColor(impact, likelihood);
       const visual = getKriRiskVisualFromFields(cell?.color_hex, riskColor);
-      const markers = items
-        .filter((item) => Number(item.impact) === impact && Number(item.likelihood) === likelihood)
+      const cellItems = items.filter(
+        (item) => Number(item.impact) === impact && Number(item.likelihood) === likelihood
+      );
+      const markers = cellItems
         .map((item) => {
           const level = normalizePerformanceLevel(item.performance_level);
           return `
@@ -1957,7 +1959,7 @@ function renderKriMatrix(items) {
 
       cells.push(`
         <div class="kri-matrix-cell" style="--cell-bg:${visual.background};--cell-border:${visual.border};--cell-accent:${visual.accent}">
-          <div class="kri-matrix-markers">${markers}</div>
+          <div class="kri-matrix-markers" data-count="${cellItems.length}">${markers}</div>
         </div>
       `);
     }
@@ -2035,8 +2037,9 @@ function renderKriDetailMiniMatrix(item) {
       const cell = findKriMatrixCell(matrix, impact, likelihood);
       const riskColor = cell?.risk_color || getFallbackMatrixRiskColor(impact, likelihood);
       const visual = getKriRiskVisualFromFields(cell?.color_hex, riskColor);
+      const hasMarker = impact === currentImpact && likelihood === currentLikelihood;
       const marker =
-        impact === currentImpact && likelihood === currentLikelihood
+        hasMarker
           ? `<span class="kri-matrix-marker kri-performance-${normalizePerformanceLevel(item.performance_level)}" title="${escapeHtml(safeText(item.risk_name, ""))}">
               ${escapeHtml(safeText(item.kri_code, "KRI"))}
             </span>`
@@ -2044,7 +2047,7 @@ function renderKriDetailMiniMatrix(item) {
 
       cells.push(`
         <div class="kri-matrix-cell" style="--cell-bg:${visual.background};--cell-border:${visual.border};--cell-accent:${visual.accent}">
-          <div class="kri-matrix-markers">${marker}</div>
+          <div class="kri-matrix-markers" data-count="${hasMarker ? 1 : 0}">${marker}</div>
         </div>
       `);
     }

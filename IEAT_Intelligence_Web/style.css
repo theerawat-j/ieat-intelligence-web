@@ -3331,15 +3331,15 @@ body {
   }
 }
 
-/* Homepage digital background integration */
-#home-view {
+/* Shared digital background integration */
+main {
   position: relative;
   isolation: isolate;
   overflow: hidden;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 600px);
 }
 
-#home-view::before {
+main::before {
   position: absolute;
   z-index: 0;
   top: 0;
@@ -3359,9 +3359,15 @@ body {
   mask-image: linear-gradient(180deg, #000 0%, #000 68%, rgba(0, 0, 0, 0.55) 82%, transparent 100%);
 }
 
-#home-view > * {
+main > * {
   position: relative;
   z-index: 1;
+}
+
+main > #home-view,
+main > .category-view,
+main > .subpage-view {
+  background: transparent;
 }
 
 #home-view .hero {
@@ -3388,7 +3394,7 @@ body {
 }
 
 @media (min-width: 768px) {
-  #home-view::before {
+  main::before {
     height: 620px;
     background-image:
       linear-gradient(90deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.74) 44%, rgba(255, 255, 255, 0.34) 100%),
@@ -3399,26 +3405,26 @@ body {
 }
 
 @media (min-width: 1024px) {
-  #home-view::before {
+  main::before {
     height: 650px;
     background-position: center top, center top, right top;
   }
 }
 
-@media (max-width: 600px) {
-  #home-view {
+@media (max-width: 767px) {
+  main {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, #fff 820px);
   }
 
-  #home-view::before {
+  main::before {
     height: 840px;
     background-image:
-      linear-gradient(90deg, rgba(255, 255, 255, 0.97) 0%, rgba(255, 255, 255, 0.9) 54%, rgba(255, 255, 255, 0.7) 100%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.32) 58%, #fff 100%),
-      url("./assets/ieat-digital-purple-bg.png");
-    background-position: center top, center top, 66% top;
-    background-size: cover, cover, auto 720px;
-    opacity: 0.9;
+      linear-gradient(90deg, rgba(255, 255, 255, 0.78) 0%, rgba(255, 255, 255, 0.52) 54%, rgba(255, 255, 255, 0.22) 100%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.2) 58%, #fff 100%),
+      url("./assets/ieat-digital-purple-bg-mobile.png");
+    background-position: center top, center top, top center;
+    background-size: cover, cover, 100% auto;
+    opacity: 1;
     -webkit-mask-image: linear-gradient(180deg, #000 0%, #000 72%, rgba(0, 0, 0, 0.45) 88%, transparent 100%);
     mask-image: linear-gradient(180deg, #000 0%, #000 72%, rgba(0, 0, 0, 0.45) 88%, transparent 100%);
   }
@@ -6330,14 +6336,58 @@ body {
 
   .kri-matrix-markers,
   .kri-detail-mini-matrix .kri-matrix-markers {
-    flex-wrap: wrap;
-    gap: 3px;
-    padding: 3px;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 2px;
+  }
+
+  .kri-matrix-markers[data-count="1"] {
+    flex-wrap: nowrap;
+  }
+
+  .kri-matrix-markers[data-count="2"] {
+    flex-wrap: nowrap;
+  }
+
+  .kri-matrix-markers[data-count="2"] .kri-matrix-marker {
+    min-width: 21px;
+    min-height: 21px;
+    width: 21px;
+    height: 21px;
+    font-size: 8px;
+  }
+
+  .kri-matrix-markers[data-count="3"],
+  .kri-matrix-markers[data-count="4"] {
+    display: grid;
+    grid-template-columns: repeat(2, 18px);
+    grid-auto-rows: 18px;
+    align-content: center;
+    justify-content: center;
+    gap: 2px;
+  }
+
+  .kri-matrix-markers[data-count="3"] .kri-matrix-marker,
+  .kri-matrix-markers[data-count="4"] .kri-matrix-marker {
+    min-width: 18px;
+    min-height: 18px;
+    width: 18px;
+    height: 18px;
+    font-size: 7px;
+  }
+
+  .kri-matrix-markers[data-count="3"] .kri-matrix-marker:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
   }
 
   .kri-matrix-cell,
   .kri-detail-mini-matrix .kri-matrix-cell {
-    overflow: visible;
+    overflow: hidden;
   }
 
   .kri-matrix-marker,
