@@ -31,6 +31,11 @@ let briefingData = null;
 let currentCategory = "";
 let newsDetailOrigin = "home";
 let kriDetailReturnView = "home";
+let grcActiveTab = "categories";
+let grcExpandedCategoryCode = "";
+let grcSearchQuery = "";
+let grcCategoryFilter = "";
+let grcStatusFilter = "";
 let menuCloseTimer = null;
 let swipeBackGesture = null;
 let swipeBackListenersBound = false;
@@ -459,6 +464,7 @@ function showCategoryDetail(category, updateHash = true) {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("");
   document.title = `${selectedCategory} | IEAT Intelligence`;
@@ -471,6 +477,7 @@ function showCategoryDetail(category, updateHash = true) {
 
 function showHome(updateHash = true) {
   resetSwipeBackGesture();
+  clearGrcHash();
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = true;
@@ -478,6 +485,7 @@ function showHome(updateHash = true) {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.querySelector("#home-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("home");
@@ -578,6 +586,7 @@ function showTodayHeadlines() {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -790,6 +799,7 @@ function showNewsDetail(item, origin) {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.querySelector("#news-detail-view").hidden = false;
   document.body.classList.add("detail-open");
   setActiveNav("");
@@ -960,6 +970,7 @@ function renderWatchlist() {
 
 function showWatchlist() {
   resetSwipeBackGesture();
+  clearGrcHash();
   renderWatchlist();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
@@ -968,6 +979,7 @@ function showWatchlist() {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.querySelector("#watchlist-view").hidden = false;
   document.body.classList.remove("detail-open");
   setActiveNav("watchlist");
@@ -977,6 +989,7 @@ function showWatchlist() {
 
 function showReports() {
   resetSwipeBackGesture();
+  clearGrcHash();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
   document.querySelector("#today-headlines-view").hidden = true;
@@ -985,14 +998,55 @@ function showReports() {
   document.querySelector("#reports-view").hidden = false;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.body.classList.remove("detail-open");
   setActiveNav("reports");
   document.title = "Reports | IEAT Intelligence";
   window.scrollTo({ top: 0, behavior: "auto" });
 }
 
+function showGrcPage(updateHash = true) {
+  resetSwipeBackGesture();
+  grcActiveTab = "categories";
+  grcExpandedCategoryCode = "";
+  grcSearchQuery = "";
+  grcCategoryFilter = "";
+  grcStatusFilter = "";
+  renderGrcPage();
+
+  document.querySelector("#home-view").hidden = true;
+  document.querySelector("#category-view").hidden = true;
+  document.querySelector("#today-headlines-view").hidden = true;
+  document.querySelector("#news-detail-view").hidden = true;
+  document.querySelector("#watchlist-view").hidden = true;
+  document.querySelector("#reports-view").hidden = true;
+  document.querySelector("#kri-dashboard-view").hidden = true;
+  document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = false;
+  document.body.classList.add("detail-open");
+  setActiveNav("");
+  document.title = "GRC | IEAT Intelligence";
+  window.scrollTo({ top: 0, behavior: "auto" });
+
+  if (updateHash && window.location.hash !== "#grc") {
+    history.pushState({ view: "grc" }, "", "#grc");
+  }
+}
+
+function backFromGrcPage() {
+  showHome(false);
+  history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+}
+
+function clearGrcHash() {
+  if (window.location.hash === "#grc") {
+    history.replaceState({}, "", `${window.location.pathname}${window.location.search}`);
+  }
+}
+
 function showKriDashboard() {
   resetSwipeBackGesture();
+  clearGrcHash();
   renderKriDashboard();
   document.querySelector("#home-view").hidden = true;
   document.querySelector("#category-view").hidden = true;
@@ -1002,6 +1056,7 @@ function showKriDashboard() {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = false;
   document.querySelector("#kri-detail-view").hidden = true;
+  document.querySelector("#grc-page-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("erm");
   document.title = "ERM Dashboard | IEAT Intelligence";
@@ -1023,6 +1078,7 @@ function showKriDetail(kriCode, returnView = "home") {
   document.querySelector("#reports-view").hidden = true;
   document.querySelector("#kri-dashboard-view").hidden = true;
   document.querySelector("#kri-detail-view").hidden = false;
+  document.querySelector("#grc-page-view").hidden = true;
   document.body.classList.add("detail-open");
   setActiveNav("erm");
   document.title = `${safeText(item.kri_code, "KRI")} | IEAT Intelligence`;
@@ -1264,6 +1320,8 @@ function bindNavigation() {
   document.querySelector("#news-detail-back").addEventListener("click", backFromNewsDetail);
   document.querySelector("#watchlist-back").addEventListener("click", () => showHome(false));
   document.querySelector("#reports-back").addEventListener("click", () => showHome(false));
+  document.querySelector("#view-grc-page").addEventListener("click", () => showGrcPage(true));
+  document.querySelector("#grc-page-back").addEventListener("click", backFromGrcPage);
   document.querySelector("#kri-dashboard-back").addEventListener("click", () => showHome(false));
   document.querySelector("#view-kri-dashboard").addEventListener("click", showKriDashboard);
   document.querySelector("#kri-detail-back").addEventListener("click", backFromKriDetail);
@@ -1282,6 +1340,37 @@ function bindNavigation() {
 
     event.preventDefault();
     showWatchlist();
+  });
+
+  document.querySelector(".grc-view-tabs").addEventListener("click", (event) => {
+    const tab = event.target.closest("[role='tab']");
+    if (!tab) return;
+
+    setGrcActiveTab(tab.id === "grc-tab-indicators" ? "indicators" : "categories");
+  });
+
+  document.querySelector("#grc-category-list").addEventListener("click", (event) => {
+    const toggle = event.target.closest("[data-grc-category-toggle]");
+    if (!toggle) return;
+
+    const code = toggle.dataset.grcCategoryToggle;
+    grcExpandedCategoryCode = grcExpandedCategoryCode === code ? "" : code;
+    renderGrcCategoryOverview();
+  });
+
+  document.querySelector("#grc-indicator-search").addEventListener("input", (event) => {
+    grcSearchQuery = event.target.value;
+    renderGrcAllIndicators();
+  });
+
+  document.querySelector("#grc-category-filter").addEventListener("change", (event) => {
+    grcCategoryFilter = event.target.value;
+    renderGrcAllIndicators();
+  });
+
+  document.querySelector("#grc-status-filter").addEventListener("change", (event) => {
+    grcStatusFilter = event.target.value;
+    renderGrcAllIndicators();
   });
 
   document.querySelector("#watchlist-items").addEventListener("click", (event) => {
@@ -1368,6 +1457,8 @@ function bindNavigation() {
     const category = categoryFromHash();
     if (category) {
       showCategoryDetail(category, false);
+    } else if (window.location.hash === "#grc") {
+      showGrcPage(false);
     } else {
       showHome(false);
     }
@@ -2589,6 +2680,710 @@ function firstRecord(value) {
   return value && typeof value === "object" ? value : {};
 }
 
+function normalizeGrcText(value) {
+  return value === null || value === undefined ? "" : String(value).trim();
+}
+
+function normalizeGrcDisplayOrder(value, fallbackOrder) {
+  if (
+    value === null ||
+    value === undefined ||
+    (typeof value === "string" && !value.trim())
+  ) {
+    return fallbackOrder;
+  }
+
+  const displayOrder = Number(value);
+  return Number.isFinite(displayOrder) ? displayOrder : fallbackOrder;
+}
+
+function normalizeGrcCategories(categories) {
+  if (!Array.isArray(categories)) return [];
+
+  return categories
+    .map((category, index) => ({
+      ...category,
+      grc_code: normalizeGrcText(category?.grc_code),
+      grc_short_name: normalizeGrcText(category?.grc_short_name),
+      grc_name: normalizeGrcText(category?.grc_name),
+      display_order: normalizeGrcDisplayOrder(
+        category?.display_order,
+        categories.length + index + 1
+      )
+    }))
+    .sort((a, b) => a.display_order - b.display_order);
+}
+
+function normalizeGrcIndicators(indicators) {
+  if (!Array.isArray(indicators)) return [];
+
+  return indicators
+    .map((indicator, index) => ({
+      ...indicator,
+      indicator_id: normalizeGrcText(indicator?.indicator_id),
+      grc_code: normalizeGrcText(indicator?.grc_code),
+      indicator_name: normalizeGrcText(indicator?.indicator_name),
+      target: normalizeGrcText(indicator?.target),
+      performance_level: normalizeGrcText(indicator?.performance_level),
+      performance_label: normalizeGrcText(indicator?.performance_label),
+      performance_detail: normalizeGrcText(indicator?.performance_detail),
+      last_update: normalizeGrcText(indicator?.last_update),
+      display_order: normalizeGrcDisplayOrder(
+        indicator?.display_order,
+        indicators.length + index + 1
+      )
+    }))
+    .sort((a, b) => a.display_order - b.display_order);
+}
+
+function normalizeGrcData(grc) {
+  const source = grc && typeof grc === "object" ? grc : {};
+
+  return {
+    categories: normalizeGrcCategories(source.categories),
+    indicators: normalizeGrcIndicators(source.indicators)
+  };
+}
+
+function getGrcCategories() {
+  return Array.isArray(briefingData?.grc?.categories)
+    ? [...briefingData.grc.categories]
+    : [];
+}
+
+function getGrcIndicators() {
+  return Array.isArray(briefingData?.grc?.indicators)
+    ? [...briefingData.grc.indicators]
+    : [];
+}
+
+function getGrcIndicatorsByCode(grcCode) {
+  const code = normalizeGrcText(grcCode);
+  if (!code) return [];
+
+  return getGrcIndicators().filter((indicator) => indicator.grc_code === code);
+}
+
+function parseGrcUpdateDate(value) {
+  const text = normalizeGrcText(value);
+  if (!text) return null;
+
+  const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(text);
+  if (dateOnlyMatch) {
+    const [, yearText, monthText, dayText] = dateOnlyMatch;
+    const year = Number(yearText);
+    const month = Number(monthText);
+    const day = Number(dayText);
+    const date = new Date(year, month - 1, day);
+
+    if (
+      date.getFullYear() === year &&
+      date.getMonth() === month - 1 &&
+      date.getDate() === day
+    ) {
+      return date;
+    }
+
+    return null;
+  }
+
+  const date = new Date(text);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function getLatestGrcUpdateDate(indicators) {
+  return indicators.reduce((latestDate, indicator) => {
+    const date = parseGrcUpdateDate(indicator?.last_update);
+    return date && (!latestDate || date > latestDate) ? date : latestDate;
+  }, null);
+}
+
+function formatGrcUpdateDate(date) {
+  if (!date) return "—";
+
+  return new Intl.DateTimeFormat("th-TH", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  }).format(date);
+}
+
+function grcStatusIcon(status) {
+  const icons = {
+    achieved:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path><path d="m9.2 12 1.8 1.8 3.9-4.2"></path></svg>',
+    on_track:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><circle cx="12" cy="12" r="3"></circle><path d="M12 3.5V6M20.5 12H18M12 18v2.5M6 12H3.5"></path></svg>',
+    mixed:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 17H3L12 3Z"></path><path d="M12 9v4M12 17h.01"></path></svg>',
+    not_meet:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path><path d="m9.5 9.5 5 5M14.5 9.5l-5 5"></path></svg>',
+    other:
+      '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 8v4M12 16h.01"></path></svg>'
+  };
+
+  return icons[status] || icons.other;
+}
+
+function renderGrcSnapshot() {
+  const section = document.querySelector("#grc-snapshot-section");
+  const container = document.querySelector("#grc-snapshot");
+  if (!section || !container) return;
+
+  const categories = getGrcCategories();
+  const indicators = getGrcIndicators();
+
+  if (categories.length === 0 && indicators.length === 0) {
+    container.innerHTML = "";
+    section.hidden = true;
+    return;
+  }
+
+  const primaryStatuses = [
+    { key: "achieved", label: "Achieved", labelTh: "บรรลุเป้าหมาย" },
+    { key: "on_track", label: "On Track", labelTh: "เป็นไปตามเป้าหมาย" },
+    { key: "mixed", label: "Mixed", labelTh: "ต้องติดตาม" },
+    { key: "not_meet", label: "Not Meet", labelTh: "ไม่เป็นไปตามเป้าหมาย" }
+  ];
+  const primaryKeys = new Set(primaryStatuses.map((status) => status.key));
+  const statusCounts = indicators.reduce((counts, indicator) => {
+    const level = indicator.performance_level;
+    counts[level] = (counts[level] || 0) + 1;
+    return counts;
+  }, {});
+  const otherCount = indicators.reduce(
+    (count, indicator) => count + (primaryKeys.has(indicator.performance_level) ? 0 : 1),
+    0
+  );
+  const statuses = otherCount > 0
+    ? [...primaryStatuses, { key: "other", label: "Other", labelTh: "ไม่ระบุ", count: otherCount }]
+    : primaryStatuses;
+  const latestUpdate = formatGrcUpdateDate(getLatestGrcUpdateDate(indicators));
+
+  container.innerHTML = `
+    <div class="grc-snapshot-panel grc-snapshot-counts" aria-label="GRC data totals">
+      <div class="grc-count-metric">
+        <strong>${categories.length}</strong>
+        <span>หมวด GRC</span>
+        <small>Categories</small>
+      </div>
+      <div class="grc-count-metric">
+        <strong>${indicators.length}</strong>
+        <span>ตัวชี้วัด</span>
+        <small>Indicators</small>
+      </div>
+    </div>
+
+    <div class="grc-snapshot-panel grc-snapshot-status-summary">
+      <p class="grc-snapshot-panel-label">ภาพรวมสถานะ</p>
+      <div class="grc-snapshot-statuses">
+        ${statuses
+          .map((status) => {
+            const count = status.count ?? statusCounts[status.key] ?? 0;
+            return `
+              <div class="grc-status-item grc-status-${status.key.replaceAll("_", "-")}">
+                <span class="grc-status-icon">${grcStatusIcon(status.key)}</span>
+                <span class="grc-status-copy">
+                  <strong>${count}</strong>
+                  <b>${escapeHtml(status.label)}</b>
+                  <small>${escapeHtml(status.labelTh)}</small>
+                </span>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    </div>
+
+    <div class="grc-snapshot-panel grc-snapshot-update">
+      <span class="grc-update-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24">
+          <rect x="3.5" y="5" width="17" height="15" rx="3"></rect>
+          <path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"></path>
+          <path d="M8 13h3M8 16h6"></path>
+        </svg>
+      </span>
+      <span class="grc-update-copy">
+        <small>อัปเดตล่าสุด</small>
+        <strong>${escapeHtml(latestUpdate)}</strong>
+      </span>
+    </div>
+  `;
+
+  section.hidden = false;
+}
+
+function getGrcPrimaryStatuses() {
+  return [
+    { key: "achieved", label: "Achieved", labelTh: "บรรลุเป้าหมาย" },
+    { key: "on_track", label: "On Track", labelTh: "เป็นไปตามเป้าหมาย" },
+    { key: "mixed", label: "Mixed", labelTh: "ต้องติดตาม" },
+    { key: "not_meet", label: "Not Meet", labelTh: "ไม่เป็นไปตามเป้าหมาย" }
+  ];
+}
+
+function getGrcStatusMeta(status) {
+  const level = normalizeGrcText(status);
+  const known = getGrcPrimaryStatuses().find((item) => item.key === level);
+
+  return known || {
+    key: "other",
+    label: "Other",
+    labelTh: "ไม่ระบุ"
+  };
+}
+
+function getGrcStatusCounts(indicators) {
+  return indicators.reduce((counts, indicator) => {
+    const level = indicator.performance_level;
+    counts[level] = (counts[level] || 0) + 1;
+    return counts;
+  }, {});
+}
+
+function getGrcDisplayStatuses(indicators) {
+  const primaryStatuses = getGrcPrimaryStatuses();
+  const primaryKeys = new Set(primaryStatuses.map((status) => status.key));
+  const statusCounts = getGrcStatusCounts(indicators);
+  const otherCount = indicators.reduce(
+    (count, indicator) => count + (primaryKeys.has(indicator.performance_level) ? 0 : 1),
+    0
+  );
+
+  return otherCount > 0
+    ? [...primaryStatuses, { key: "other", label: "Other", labelTh: "ไม่ระบุ", count: otherCount }]
+    : primaryStatuses;
+}
+
+function formatGrcStatusKeyLabel(status) {
+  const words = normalizeGrcText(status)
+    .split(/[\s_-]+/)
+    .filter(Boolean);
+
+  return words.length > 0
+    ? words.map((word) => word.charAt(0).toUpperCase() + word.slice(1)).join(" ")
+    : "Unspecified";
+}
+
+function getGrcCategoryStatusBadges(indicators) {
+  const counts = getGrcStatusCounts(indicators);
+  const primaryStatuses = getGrcPrimaryStatuses();
+  const primaryKeys = new Set(primaryStatuses.map((status) => status.key));
+  const knownBadges = primaryStatuses
+    .map((status) => ({ ...status, count: counts[status.key] || 0, styleKey: status.key }))
+    .filter((status) => status.count > 0);
+  const otherBadges = Object.entries(counts)
+    .filter(([key, count]) => normalizeGrcText(key) && !primaryKeys.has(key) && count > 0)
+    .map(([key, count]) => ({
+      key,
+      styleKey: "other",
+      label: formatGrcStatusKeyLabel(key),
+      count
+    }));
+
+  return [...knownBadges, ...otherBadges];
+}
+
+function formatGrcIndicatorDate(value) {
+  return formatGrcUpdateDate(parseGrcUpdateDate(value));
+}
+
+function getGrcCategoryLookup(categories = getGrcCategories()) {
+  return new Map(categories.map((category) => [category.grc_code, category]));
+}
+
+function getGrcCategoryReference(indicator, categoryLookup) {
+  const category = categoryLookup.get(indicator.grc_code);
+  if (category) {
+    return {
+      code: category.grc_code,
+      label: category.grc_short_name || category.grc_name || category.grc_code,
+      badgeLabel: category.grc_short_name || category.grc_code || "GRC"
+    };
+  }
+
+  return {
+    code: indicator.grc_code,
+    label: indicator.grc_code || "ไม่พบข้อมูลหมวด GRC",
+    badgeLabel: indicator.grc_code || "GRC"
+  };
+}
+
+function formatGrcDetailText(value) {
+  return escapeHtml(normalizeGrcText(value)).replace(/\r?\n/g, "<br>");
+}
+
+function getGrcCategoryVisual(grcCode) {
+  const visuals = {
+    "1": {
+      theme: "governance",
+      icon: '<svg viewBox="0 0 24 24"><path d="M3.5 20.5h17M5 18h14M6.5 9.5v7M10.2 9.5v7M13.8 9.5v7M17.5 9.5v7M4.5 8l7.5-4.5L19.5 8H4.5Z"></path></svg>'
+    },
+    "2": {
+      theme: "fairness",
+      icon: '<svg viewBox="0 0 24 24"><path d="M12 4v16M7 20h10M5 7h14M7 7l-3 6h6L7 7ZM17 7l-3 6h6l-3-6Z"></path><path d="M4 13c.5 1.5 1.5 2.3 3 2.3s2.5-.8 3-2.3M14 13c.5 1.5 1.5 2.3 3 2.3s2.5-.8 3-2.3"></path></svg>'
+    },
+    "3": {
+      theme: "reporting",
+      icon: '<svg viewBox="0 0 24 24"><path d="M6 3.5h9l3 3V20.5H6V3.5Z"></path><path d="M15 3.5V7h3M9 16v-3M12 16v-5M15 16V9M8.5 17.5h7"></path></svg>'
+    },
+    "4": {
+      theme: "control",
+      icon: '<svg viewBox="0 0 24 24"><path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path><path d="m9.2 12 1.8 1.8 3.9-4.2"></path></svg>'
+    },
+    "5": {
+      theme: "compliance",
+      icon: '<svg viewBox="0 0 24 24"><path d="M8 4.5h8M9 3h6v3H9V3ZM6 5.5h12v15H6v-15Z"></path><path d="m9 12 1.5 1.5 3-3M9 17h6"></path></svg>'
+    }
+  };
+
+  return visuals[normalizeGrcText(grcCode)] || {
+    theme: "default",
+    icon: '<svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2-2h9v13h-17v-11Z"></path><path d="M3.5 10h17"></path></svg>'
+  };
+}
+
+function renderGrcPageSummary(categories, indicators) {
+  const container = document.querySelector("#grc-page-summary");
+  const statusCounts = getGrcStatusCounts(indicators);
+  const statuses = getGrcDisplayStatuses(indicators);
+  const latestUpdate = formatGrcUpdateDate(getLatestGrcUpdateDate(indicators));
+
+  container.innerHTML = `
+    <div class="grc-summary-metrics" aria-label="GRC data totals">
+      <section class="grc-summary-card grc-summary-metric grc-summary-metric-categories">
+        <span class="grc-summary-metric-label"><small>หมวด GRC</small><b>Categories</b></span>
+        <div class="grc-summary-metric-main">
+          <strong>${categories.length}</strong>
+          <span class="grc-summary-total-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3.5 7.5h6l2-2h9v13h-17v-11Z"></path><path d="M3.5 10h17"></path></svg>
+          </span>
+        </div>
+      </section>
+      <section class="grc-summary-card grc-summary-metric grc-summary-metric-indicators">
+        <span class="grc-summary-metric-label"><small>ตัวชี้วัด</small><b>Indicators</b></span>
+        <div class="grc-summary-metric-main">
+          <strong>${indicators.length}</strong>
+          <span class="grc-summary-total-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M7 3.5h10l3 3V21H7V3.5Z"></path><path d="M17 3.5V7h3M10 11h7M10 15h7"></path></svg>
+          </span>
+        </div>
+      </section>
+    </div>
+
+    <section class="grc-summary-card grc-summary-statuses" aria-label="GRC performance status summary">
+      <p class="grc-summary-label">สถานะการดำเนินงาน <span>(Indicators)</span></p>
+      <div class="grc-summary-status-grid">
+        ${statuses
+          .map((status) => {
+            const count = status.count ?? statusCounts[status.key] ?? 0;
+            return `
+              <div class="grc-summary-status grc-status-${status.key.replaceAll("_", "-")}">
+                <span class="grc-status-icon">${grcStatusIcon(status.key)}</span>
+                <strong>${count}</strong>
+                <span><b>${escapeHtml(status.label)}</b><small>${escapeHtml(status.labelTh)}</small></span>
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    </section>
+
+    <section class="grc-summary-card grc-summary-latest" aria-label="อัปเดตล่าสุด">
+      <small class="grc-summary-latest-label">อัปเดตล่าสุด</small>
+      <div class="grc-summary-latest-main">
+        <span class="grc-update-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="3"></rect><path d="M7.5 3v4M16.5 3v4M3.5 9.5h17"></path><path d="M8 13h3M8 16h6"></path></svg>
+        </span>
+        <strong>${escapeHtml(latestUpdate)}</strong>
+      </div>
+    </section>
+  `;
+}
+
+function renderGrcIndicatorCard(indicator, categoryLookup, compact = false) {
+  const status = getGrcStatusMeta(indicator.performance_level);
+  const statusLabel = indicator.performance_label || status.labelTh;
+  const category = getGrcCategoryReference(indicator, categoryLookup);
+  const categoryVisual = getGrcCategoryVisual(category.code);
+  const target = normalizeGrcText(indicator.target);
+  const performanceDetail = normalizeGrcText(indicator.performance_detail);
+  const lastUpdate = formatGrcIndicatorDate(indicator.last_update);
+
+  return `
+    <article class="grc-indicator-card${compact ? " grc-indicator-card-compact" : ""}">
+      <header class="grc-indicator-card-header">
+        <div class="grc-indicator-identity">
+          <span class="grc-indicator-id">${escapeHtml(indicator.indicator_id || "—")}</span>
+          <span class="grc-indicator-category grc-indicator-category-badge grc-category-theme-${categoryVisual.theme}" aria-label="หมวด GRC: ${escapeHtml(category.badgeLabel)}">${escapeHtml(category.badgeLabel)}</span>
+        </div>
+        <span class="grc-indicator-status grc-status-${status.key.replaceAll("_", "-")}">
+          <span class="grc-status-icon">${grcStatusIcon(status.key)}</span>
+          <span><strong>${escapeHtml(statusLabel)}</strong><small>${escapeHtml(status.label)}</small></span>
+        </span>
+      </header>
+      <h3>${escapeHtml(indicator.indicator_name || "ไม่มีชื่อตัวชี้วัด")}</h3>
+      <p class="grc-indicator-category-name">${escapeHtml(category.label)}</p>
+      <div class="grc-indicator-fields">
+        ${
+          target
+            ? `<div class="grc-indicator-field"><span>เป้าหมาย</span><p>${formatGrcDetailText(target)}</p></div>`
+            : ""
+        }
+        ${
+          performanceDetail
+            ? `<div class="grc-indicator-field grc-indicator-detail"><span>ผลการดำเนินงาน</span><p>${formatGrcDetailText(performanceDetail)}</p></div>`
+            : ""
+        }
+        <div class="grc-indicator-field grc-indicator-date"><span>อัปเดตล่าสุด</span><p>${escapeHtml(lastUpdate)}</p></div>
+      </div>
+    </article>
+  `;
+}
+
+function renderGrcCategoryOverview() {
+  const container = document.querySelector("#grc-category-list");
+  const categories = getGrcCategories();
+  const categoryLookup = getGrcCategoryLookup(categories);
+
+  if (categories.length === 0) {
+    container.innerHTML = '<p class="grc-page-inline-empty">ยังไม่มีข้อมูลหมวด GRC</p>';
+    return;
+  }
+
+  const columnHeader = `
+    <div class="grc-category-columns" aria-hidden="true">
+      <span class="grc-category-column grc-category-column-main"><strong>หมวด GRC</strong><small>GRC Category</small></span>
+      <span class="grc-category-column"><strong>ตัวชี้วัด</strong><small>Indicators</small></span>
+      <span class="grc-category-column"><strong>สถานะ</strong><small>Status by Indicator</small></span>
+      <span class="grc-category-column"><strong>อัปเดตล่าสุด</strong><small>Last Update</small></span>
+      <span class="grc-category-column-spacer"></span>
+    </div>
+  `;
+
+  container.innerHTML = columnHeader + categories
+    .map((category, index) => {
+      const indicators = getGrcIndicatorsByCode(category.grc_code);
+      const statuses = getGrcCategoryStatusBadges(indicators);
+      const visual = getGrcCategoryVisual(category.grc_code);
+      const isExpanded = grcExpandedCategoryCode === category.grc_code;
+      const detailsId = `grc-category-details-${index + 1}`;
+      const latestUpdate = formatGrcUpdateDate(getLatestGrcUpdateDate(indicators));
+
+      return `
+        <article class="grc-category-card grc-category-theme-${visual.theme}${isExpanded ? " expanded" : ""}">
+          <button class="grc-category-toggle" type="button" data-grc-category-toggle="${escapeHtml(category.grc_code)}" aria-expanded="${isExpanded}" aria-controls="${detailsId}">
+            <span class="grc-category-icon" aria-hidden="true">
+              ${visual.icon}
+            </span>
+            <span class="grc-category-copy">
+              <span class="grc-category-code">GRC ${escapeHtml(category.grc_code)}</span>
+              <strong>${escapeHtml(category.grc_short_name || category.grc_name || category.grc_code)}</strong>
+              ${category.grc_name ? `<small>${escapeHtml(category.grc_name)}</small>` : ""}
+            </span>
+            <span class="grc-category-count"><strong>${indicators.length}</strong><small>ตัวชี้วัด</small></span>
+            <span class="grc-category-status-mix" aria-label="สถานะตัวชี้วัด">
+              <small class="grc-category-mobile-label">สถานะ</small>
+              ${
+                statuses.length > 0
+                  ? statuses
+                      .map(
+                        (status) =>
+                          `<span class="grc-category-status grc-status-${status.styleKey.replaceAll("_", "-")}"><b>${status.count}</b> <span>${escapeHtml(status.label)}</span></span>`
+                      )
+                      .join("")
+                  : '<span class="grc-category-status-empty" aria-label="ไม่มีสถานะ">—</span>'
+              }
+            </span>
+            <span class="grc-category-update"><small>อัปเดตล่าสุด</small><strong>${escapeHtml(latestUpdate)}</strong></span>
+            <span class="grc-category-chevron" aria-hidden="true">⌄</span>
+          </button>
+          <div id="${detailsId}" class="grc-category-details"${isExpanded ? "" : " hidden"}>
+            ${
+              indicators.length > 0
+                ? `<div class="grc-category-indicators">${indicators
+                    .map((indicator) => renderGrcIndicatorCard(indicator, categoryLookup, true))
+                    .join("")}</div>`
+                : '<p class="grc-page-inline-empty">ไม่พบตัวชี้วัดในหมวดนี้</p>'
+            }
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderGrcFilterOptions() {
+  const categories = getGrcCategories();
+  const indicators = getGrcIndicators();
+  const categorySelect = document.querySelector("#grc-category-filter");
+  const statusSelect = document.querySelector("#grc-status-filter");
+  const categoryCodes = new Set(categories.map((category) => category.grc_code));
+  const unmatchedCodes = [...new Set(
+    indicators
+      .map((indicator) => indicator.grc_code)
+      .filter((code) => code && !categoryCodes.has(code))
+  )];
+
+  categorySelect.innerHTML = `
+    <option value="">ทุกหมวด GRC</option>
+    ${categories
+      .map((category) => `<option value="${escapeHtml(category.grc_code)}">${escapeHtml(category.grc_code)} — ${escapeHtml(category.grc_short_name || category.grc_name || category.grc_code)}</option>`)
+      .join("")}
+    ${unmatchedCodes
+      .map((code) => `<option value="${escapeHtml(code)}">${escapeHtml(code)} — ไม่พบข้อมูลหมวด GRC</option>`)
+      .join("")}
+  `;
+
+  const presentLevels = [...new Set(indicators.map((indicator) => indicator.performance_level))];
+  const preferredKeys = getGrcPrimaryStatuses().map((status) => status.key);
+  const orderedLevels = [
+    ...preferredKeys.filter((key) => presentLevels.includes(key)),
+    ...presentLevels.filter((key) => !preferredKeys.includes(key)).sort((a, b) => a.localeCompare(b))
+  ];
+
+  statusSelect.innerHTML = `
+    <option value="">ทุกสถานะ</option>
+    ${orderedLevels
+      .map((level) => {
+        const status = getGrcStatusMeta(level);
+        const label = status.key === "other" ? level || "ไม่ระบุ" : `${status.label} — ${status.labelTh}`;
+        return `<option value="${escapeHtml(level)}">${escapeHtml(label)}</option>`;
+      })
+      .join("")}
+  `;
+
+  categorySelect.value = grcCategoryFilter;
+  statusSelect.value = grcStatusFilter;
+  document.querySelector("#grc-indicator-search").value = grcSearchQuery;
+}
+
+function renderGrcAllIndicators() {
+  const container = document.querySelector("#grc-indicator-list");
+  const countLabel = document.querySelector("#grc-indicator-result-count");
+  const categories = getGrcCategories();
+  const categoryLookup = getGrcCategoryLookup(categories);
+  const query = normalizeGrcText(grcSearchQuery).toLocaleLowerCase("th-TH");
+  const indicators = getGrcIndicators().filter((indicator) => {
+    const category = categoryLookup.get(indicator.grc_code);
+    const searchableText = [
+      indicator.indicator_id,
+      indicator.indicator_name,
+      indicator.target,
+      indicator.performance_detail,
+      indicator.grc_code,
+      category?.grc_short_name,
+      category?.grc_name
+    ]
+      .map((value) => normalizeGrcText(value).toLocaleLowerCase("th-TH"))
+      .join(" ");
+
+    return (
+      (!query || searchableText.includes(query)) &&
+      (!grcCategoryFilter || indicator.grc_code === grcCategoryFilter) &&
+      (!grcStatusFilter || indicator.performance_level === grcStatusFilter)
+    );
+  });
+
+  countLabel.textContent = `แสดง ${indicators.length} ตัวชี้วัด`;
+  container.innerHTML = indicators.length > 0
+    ? indicators.map((indicator) => renderGrcIndicatorCard(indicator, categoryLookup)).join("")
+    : '<p class="grc-page-inline-empty">ไม่พบตัวชี้วัดที่ตรงกับเงื่อนไข</p>';
+}
+
+function renderGrcStatusDistribution(indicators) {
+  const container = document.querySelector("#grc-status-distribution");
+  const counts = getGrcStatusCounts(indicators);
+  const total = indicators.length;
+  const statuses = getGrcDisplayStatuses(indicators);
+
+  container.innerHTML = statuses
+    .map((status) => {
+      const count = status.count ?? counts[status.key] ?? 0;
+      const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+      return `
+        <div class="grc-distribution-row grc-status-${status.key.replaceAll("_", "-")}">
+          <span class="grc-status-icon">${grcStatusIcon(status.key)}</span>
+          <span class="grc-distribution-copy"><strong>${escapeHtml(status.label)}</strong><small>${escapeHtml(status.labelTh)}</small></span>
+          <span class="grc-distribution-value"><b>${count}</b><small>${percentage}%</small></span>
+          <span class="grc-distribution-track" aria-hidden="true"><i style="width:${percentage}%"></i></span>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderGrcLatestUpdates(indicators) {
+  const container = document.querySelector("#grc-latest-updates");
+  const latestIndicators = indicators
+    .map((indicator) => ({ indicator, date: parseGrcUpdateDate(indicator.last_update) }))
+    .filter((entry) => entry.date)
+    .sort((a, b) => b.date - a.date || a.indicator.display_order - b.indicator.display_order)
+    .slice(0, 5);
+
+  if (latestIndicators.length === 0) {
+    container.innerHTML = '<p class="grc-page-inline-empty">ยังไม่มีข้อมูลวันที่อัปเดต</p>';
+    return;
+  }
+
+  container.innerHTML = latestIndicators
+    .map(({ indicator, date }) => {
+      const status = getGrcStatusMeta(indicator.performance_level);
+      return `
+        <div class="grc-latest-item grc-status-${status.key.replaceAll("_", "-")}">
+          <span class="grc-status-icon">${grcStatusIcon(status.key)}</span>
+          <span class="grc-latest-copy"><strong>${escapeHtml(indicator.indicator_name || "ไม่มีชื่อตัวชี้วัด")}</strong><small>${escapeHtml(indicator.indicator_id || "—")}</small></span>
+          <time datetime="${escapeHtml(indicator.last_update)}">${escapeHtml(formatGrcUpdateDate(date))}</time>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function setGrcActiveTab(tabName) {
+  grcActiveTab = tabName === "indicators" ? "indicators" : "categories";
+  const categoryTab = document.querySelector("#grc-tab-categories");
+  const indicatorTab = document.querySelector("#grc-tab-indicators");
+  const categoryPanel = document.querySelector("#grc-category-panel");
+  const indicatorPanel = document.querySelector("#grc-indicator-panel");
+  const showIndicators = grcActiveTab === "indicators";
+
+  categoryTab.classList.toggle("active", !showIndicators);
+  categoryTab.setAttribute("aria-selected", String(!showIndicators));
+  categoryTab.tabIndex = showIndicators ? -1 : 0;
+  indicatorTab.classList.toggle("active", showIndicators);
+  indicatorTab.setAttribute("aria-selected", String(showIndicators));
+  indicatorTab.tabIndex = showIndicators ? 0 : -1;
+  categoryPanel.hidden = showIndicators;
+  indicatorPanel.hidden = !showIndicators;
+
+  if (showIndicators) renderGrcAllIndicators();
+}
+
+function renderGrcPage() {
+  const categories = getGrcCategories();
+  const indicators = getGrcIndicators();
+  const emptyState = document.querySelector("#grc-page-empty");
+  const dashboard = document.querySelector("#grc-page-dashboard");
+
+  renderGrcPageSummary(categories, indicators);
+
+  if (categories.length === 0 && indicators.length === 0) {
+    emptyState.hidden = false;
+    dashboard.hidden = true;
+    return;
+  }
+
+  emptyState.hidden = true;
+  dashboard.hidden = false;
+  renderGrcCategoryOverview();
+  renderGrcFilterOptions();
+  renderGrcAllIndicators();
+  renderGrcStatusDistribution(indicators);
+  renderGrcLatestUpdates(indicators);
+  setGrcActiveTab(grcActiveTab);
+}
+
 function normalizeBriefingData(data) {
   const home = firstRecord(data.web_home_daily);
   const categoryStatus = Array.isArray(data.web_category_status)
@@ -2601,6 +3396,7 @@ function normalizeBriefingData(data) {
 
   return {
     ...data,
+    grc: normalizeGrcData(data.grc),
     report_date: data.report_date || home.report_date,
     updated_time: data.updated_time || home.last_updated,
     executive_summary:
@@ -2637,6 +3433,7 @@ function showLoadError() {
   renderBriefMeta({});
   renderRiskOverview([]);
   renderHeadlines([]);
+  renderGrcSnapshot();
   renderKriSnapshot();
   renderWatchpoint("");
 }
@@ -2664,12 +3461,17 @@ async function loadBriefing() {
     renderBriefMeta(briefing);
     renderRiskOverview(briefing.risk_overview);
     renderHeadlines(briefing.top_headlines);
+    renderGrcSnapshot();
     renderKriSnapshot();
     renderWatchpoint(briefing.watchpoint);
     bindNavigation();
 
     const initialCategory = categoryFromHash();
-    if (initialCategory) showCategoryDetail(initialCategory, false);
+    if (initialCategory) {
+      showCategoryDetail(initialCategory, false);
+    } else if (window.location.hash === "#grc") {
+      showGrcPage(false);
+    }
   } catch (error) {
     console.error(`Failed to load ${DATA_URL}:`, error);
     showLoadError();
