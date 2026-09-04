@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7fb">
+  <meta name="description" content="IEAT Daily Intelligence executive briefing dashboard">
+  <title>IEAT Intelligence</title>
+  <link rel="stylesheet" href="./style.css?v=78">
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button id="menu-toggle" class="icon-button" type="button" aria-label="เปิดเมนู" aria-expanded="false" aria-controls="app-menu">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h10"></path>
+        </svg>
+      </button>
+
+      <div class="brand">
+        <p class="brand-title">IEAT Intelligence</p>
+        <p class="brand-subtitle">EXECUTIVE BRIEFING</p>
+      </div>
+
+      <time id="report-date" datetime="">กำลังโหลดข้อมูล...</time>
+    </header>
+
+    <div id="menu-backdrop" class="menu-backdrop" hidden></div>
+    <aside id="app-menu" class="app-menu" aria-label="เมนูข่าว" aria-hidden="true" hidden>
+      <div class="menu-header">
+        <div>
+          <p>IEAT Intelligence</p>
+          <span>EXECUTIVE BRIEFING</span>
+        </div>
+        <button id="menu-close" class="menu-close" type="button" aria-label="ปิดเมนู">×</button>
+      </div>
+      <nav class="drawer-nav" aria-label="ทางลัด">
+        <button type="button" data-menu-action="today">ข่าววันนี้</button>
+        <button type="button" data-menu-action="erm">ERM Dashboard</button>
+        <p class="drawer-label">ตาม category</p>
+        <div class="drawer-categories">
+          <button type="button" data-menu-category="Energy">Energy</button>
+          <button type="button" data-menu-category="Supply Chain and Logistics">Supply Chain and Logistics</button>
+          <button type="button" data-menu-category="Technology and Digital Infrastructure">Technology and Digital Infrastructure</button>
+          <button type="button" data-menu-category="Public Health and Biosecurity">Public Health and Biosecurity</button>
+          <button type="button" data-menu-category="Geopolitics and Trade">Geopolitics and Trade</button>
+          <button type="button" data-menu-category="Policy and Regulation">Policy and Regulation</button>
+          <button type="button" data-menu-category="Environment and Sustainability">Environment and Sustainability</button>
+          <button type="button" data-menu-category="Investment and FDI">Investment and FDI</button>
+          <button type="button" data-menu-category="Labor and Human Capital">Labor and Human Capital</button>
+          <button type="button" data-menu-category="Competitive Landscape">Competitive Landscape</button>
+        </div>
+        <button type="button" data-menu-action="watchpoint">Watchpoint Today</button>
+      </nav>
+    </aside>
+
+    <main>
+      <div id="home-view">
+      <section class="hero" aria-labelledby="brief-title">
+        <h1 id="brief-title">Daily Intelligence Brief</h1>
+        <p id="executive-summary" class="executive-summary">
+          กำลังจัดเตรียมบทสรุปสำหรับผู้บริหาร
+        </p>
+      </section>
+
+      <div class="home-dashboard-grid">
+        <section class="content-section" aria-labelledby="headlines-heading">
+        <div class="section-heading">
+          <h2 id="headlines-heading">Top Headlines – วันนี้</h2>
+          <button id="view-all-headlines" class="section-link" type="button">
+            ดูทั้งหมด <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <ol id="headlines-list" class="headline-list" aria-live="polite">
+          <li class="loading-card">กำลังโหลดประเด็นสำคัญ...</li>
+        </ol>
+      </section>
+
+      <section class="content-section" aria-labelledby="risk-heading">
+        <div class="section-heading">
+          <h2 id="risk-heading">Risk Overview by Category</h2>
+          <span class="section-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 11v5M12 8h.01"></path>
+            </svg>
+            เทียบกับเมื่อวาน
+          </span>
+        </div>
+        <div id="risk-overview" class="risk-list" aria-live="polite">
+          <div class="loading-card">กำลังโหลดภาพรวมความเสี่ยง...</div>
+        </div>
+      </section>
+
+            </div>
+
+      <section id="grc-snapshot-section" class="content-section grc-snapshot-section" aria-labelledby="grc-snapshot-heading" hidden>
+        <div class="grc-snapshot-shell">
+          <header class="grc-snapshot-header">
+            <span class="grc-snapshot-header-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path>
+                <path d="m9.2 12 1.8 1.8 3.9-4.2"></path>
+              </svg>
+            </span>
+            <div class="grc-snapshot-heading-copy">
+              <h2 id="grc-snapshot-heading">GRC SNAPSHOT</h2>
+              <p>ภาพรวมการกำกับดูแล ความเสี่ยง และการปฏิบัติตามกรอบ GRC</p>
+            </div>
+            <button id="view-grc-page" class="grc-snapshot-link" type="button">
+              ดูรายละเอียด GRC <span aria-hidden="true">→</span>
+            </button>
+          </header>
+          <div id="grc-snapshot" class="grc-snapshot-body" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="content-section kri-snapshot-section" aria-labelledby="kri-snapshot-heading">
+        <div class="section-heading">
+          <div>
+            <h2 id="kri-snapshot-heading">ENTERPRISE RISK MANAGEMENT (ERM) SNAPSHOT</h2>
+          </div>
+          <button id="view-kri-dashboard" class="section-link" type="button">
+            ดูรายละเอียดทั้งหมด <span aria-hidden="true">→</span>
+          </button>
+        </div>
+        <div class="kri-snapshot-shell">
+          <div id="kri-snapshot-list" class="kri-snapshot-list" aria-live="polite">
+            <div class="loading-card">กำลังโหลดข้อมูล KRI...</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section watchpoint-section" aria-labelledby="watchpoint-heading">
+        <div class="section-heading">
+          <h2 id="watchpoint-heading">WATCHPOINT TODAY</h2>
+        </div>
+        <div id="watchpoint-list" class="watchpoint-list" aria-live="polite">
+          <article class="watchpoint-card" role="button" tabindex="0" aria-label="เปิด Watchpoint Today">
+          <div class="watchpoint-icon" aria-hidden="true">
+            <svg class="radar-eye-icon" viewBox="0 0 24 24">
+              <path class="radar-orbit" d="M5.2 7.7a8.8 8.8 0 0 1 13.6 0"></path>
+              <path class="radar-orbit" d="M5.2 16.3a8.8 8.8 0 0 0 13.6 0"></path>
+              <path d="M3.8 12s3.1-4.4 8.2-4.4 8.2 4.4 8.2 4.4-3.1 4.4-8.2 4.4S3.8 12 3.8 12Z"></path>
+              <circle cx="12" cy="12" r="2.6"></circle>
+              <circle class="radar-dot" cx="12" cy="5.2" r="0.7"></circle>
+              <circle class="radar-dot" cx="18.9" cy="8" r="0.55"></circle>
+              <circle class="radar-dot" cx="18.9" cy="16" r="0.55"></circle>
+              <circle class="radar-dot" cx="12" cy="18.8" r="0.7"></circle>
+              <circle class="radar-dot" cx="5.1" cy="16" r="0.55"></circle>
+              <circle class="radar-dot" cx="5.1" cy="8" r="0.55"></circle>
+            </svg>
+          </div>
+          <div>
+            <p class="section-kicker">WATCHPOINT TODAY</p>
+            <p id="watchpoint-text">กำลังโหลดประเด็นที่ต้องติดตาม...</p>
+          </div>
+          <span class="card-chevron" aria-hidden="true">›</span>
+        </article>
+        </div>
+      </section>
+
+      <div id="data-error" class="error-message" role="status" hidden>
+        ไม่สามารถโหลดข้อมูลล่าสุดได้ กรุณาตรวจสอบไฟล์ data/latest.json
+      </div>
+      </div>
+
+      <section id="category-view" class="category-view" aria-labelledby="category-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="category-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+
+        <header class="category-hero">
+          <div id="category-detail-icon"></div>
+          <div class="category-hero-copy">
+            <p class="section-kicker">CATEGORY INTELLIGENCE</p>
+            <h1 id="category-detail-title">Category</h1>
+            <p id="category-detail-subtitle">รายละเอียดหมวดหมู่</p>
+          </div>
+          <div class="category-detail-risk">
+            <span id="category-detail-direction" class="direction direction-unknown">Unknown</span>
+            <span id="category-detail-badge" class="risk-badge risk-medium">Medium</span>
+          </div>
+        </header>
+
+        <section class="detail-news-section" aria-labelledby="category-news-heading">
+          <div class="section-heading">
+            <div>
+              <p class="section-kicker">7-DAY NEWS ARCHIVE</p>
+              <h2 id="category-news-heading">ข่าวย้อนหลัง 7 วันล่าสุด</h2>
+            </div>
+            <span id="category-news-count" class="count-pill">0</span>
+          </div>
+          <div id="category-news-list" class="category-news-list" aria-live="polite"></div>
+        </section>
+      </section>
+
+      <section id="today-headlines-view" class="subpage-view" aria-labelledby="today-headlines-title" hidden>
+        <div class="detail-toolbar">
+          <button id="today-headlines-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header">
+          <p class="section-kicker">TODAY'S INTELLIGENCE</p>
+          <h1 id="today-headlines-title">ข่าวทั้งหมดวันนี้</h1>
+          <p id="today-headlines-date">กำลังโหลดข้อมูล...</p>
+        </header>
+        <div id="today-headlines-list" class="today-headlines-list" aria-live="polite"></div>
+      </section>
+
+      <article id="news-detail-view" class="subpage-view news-article-view" aria-labelledby="news-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="news-detail-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>ย้อนกลับ</span>
+          </button>
+        </div>
+        <div id="news-detail-content"></div>
+      </article>
+
+      <section id="watchlist-view" class="subpage-view" aria-labelledby="watchlist-title" hidden>
+        <div class="detail-toolbar">
+          <button id="watchlist-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header">
+          <p class="section-kicker">EXECUTIVE WATCHLIST</p>
+          <h1 id="watchlist-title">Watchpoint Today</h1>
+          <p>ประเด็นที่ควรติดตามจากรายงานล่าสุดและย้อนหลัง 7 วัน</p>
+        </header>
+        <div id="watchlist-items" class="watchlist-items" aria-live="polite"></div>
+      </section>
+
+      <section id="reports-view" class="subpage-view reports-view" aria-labelledby="reports-title" hidden>
+        <div class="detail-toolbar">
+          <button id="reports-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+        <header class="subpage-header reports-header">
+          <p class="section-kicker">IEAT DAILY BRIEF</p>
+          <h1 id="reports-title">Reports</h1>
+          <p>IEAT Daily Executive Intelligence Briefing</p>
+        </header>
+        <div class="reports-frame-shell">
+          <iframe
+            src="https://ieat-daily-brief.pages.dev/"
+            title="IEAT Daily Executive Intelligence Briefing"
+            class="reports-frame"
+            loading="lazy"
+          ></iframe>
+        </div>
+        <p class="reports-fallback">
+          หากรายงานไม่แสดงผล สามารถ
+          <a href="https://ieat-daily-brief.pages.dev/" target="_blank" rel="noopener noreferrer">เปิดรายงานในหน้าใหม่</a>
+        </p>
+      </section>
+
+      <section id="grc-page-view" class="subpage-view grc-page-view" aria-labelledby="grc-page-title" hidden>
+        <div class="detail-toolbar grc-page-toolbar">
+          <button id="grc-page-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+
+        <div class="grc-page-content">
+          <header class="grc-page-hero">
+            <span class="grc-page-hero-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M12 3.5 18.5 6v5.2c0 4.1-2.6 7.8-6.5 9.3-3.9-1.5-6.5-5.2-6.5-9.3V6L12 3.5Z"></path>
+                <path d="m9.2 12 1.8 1.8 3.9-4.2"></path>
+              </svg>
+            </span>
+            <div class="grc-page-hero-copy">
+              <h1 id="grc-page-title">GRC</h1>
+              <p class="grc-page-hero-subtitle">Governance, Risk &amp; Compliance</p>
+              <p>ภาพรวมการกำกับดูแล ความเสี่ยง และการปฏิบัติตามกรอบ GRC</p>
+            </div>
+            <svg class="grc-page-hero-pattern" viewBox="0 0 420 160" aria-hidden="true" focusable="false">
+              <g class="grc-hero-artwork-side grc-hero-artwork-governance">
+                <path d="M42 132h116M50 124h100M48 64h104L100 34 48 64ZM54 70h92"></path>
+                <path d="M62 76v42M82 76v42M103 76v42M124 76v42M144 76v42"></path>
+              </g>
+              <g class="grc-hero-artwork-shield">
+                <path d="M210 20 260 40v43c0 31-21 54-50 66-29-12-50-35-50-66V40l50-20Z"></path>
+                <path d="m187 83 16 16 31-38"></path>
+              </g>
+              <g class="grc-hero-artwork-side grc-hero-artwork-compliance">
+                <path d="M292 35h64l22 22v75h-86V35ZM356 35v23h22"></path>
+                <path d="m306 75 4 4 7-8M326 75h35M306 94l4 4 7-8M326 94h35M306 113l4 4 7-8M326 113h27"></path>
+              </g>
+              <path class="grc-hero-artwork-baseline" d="M31 132h128M261 132h128"></path>
+            </svg>
+          </header>
+
+          <div id="grc-page-summary" class="grc-page-summary" aria-live="polite"></div>
+
+          <div id="grc-page-empty" class="grc-page-empty" role="status" hidden>
+            ยังไม่มีข้อมูล GRC สำหรับแสดงผล
+          </div>
+
+          <div id="grc-page-dashboard">
+            <section class="grc-page-main-card" aria-label="ข้อมูล GRC">
+              <div class="grc-view-tabs" role="tablist" aria-label="มุมมองข้อมูล GRC">
+                <button id="grc-tab-categories" class="grc-view-tab active" type="button" role="tab" aria-selected="true" aria-controls="grc-category-panel">
+                  <strong>ภาพรวมหมวด GRC</strong>
+                  <small>Overview by GRC Category</small>
+                </button>
+                <button id="grc-tab-indicators" class="grc-view-tab" type="button" role="tab" aria-selected="false" aria-controls="grc-indicator-panel" tabindex="-1">
+                  <strong>รายการตัวชี้วัดทั้งหมด</strong>
+                  <small>All Indicators</small>
+                </button>
+              </div>
+
+              <div id="grc-category-panel" class="grc-tab-panel" role="tabpanel" aria-labelledby="grc-tab-categories">
+                <div class="grc-panel-heading">
+                  <div>
+                    <h2>ภาพรวมตามหมวด GRC</h2>
+                    <p>สถานะตัวชี้วัดและข้อมูลอัปเดตในแต่ละหมวด</p>
+                  </div>
+                </div>
+                <div id="grc-category-list" class="grc-category-list" aria-live="polite"></div>
+              </div>
+
+              <div id="grc-indicator-panel" class="grc-tab-panel" role="tabpanel" aria-labelledby="grc-tab-indicators" hidden>
+                <div class="grc-indicator-controls">
+                  <label class="grc-search-field">
+                    <span class="sr-only">ค้นหาตัวชี้วัด GRC</span>
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <circle cx="11" cy="11" r="7"></circle>
+                      <path d="m16.2 16.2 4.3 4.3"></path>
+                    </svg>
+                    <input id="grc-indicator-search" type="search" placeholder="ค้นหาตัวชี้วัด..." autocomplete="off">
+                  </label>
+                  <label class="grc-filter-field">
+                    <span class="sr-only">กรองตามหมวด GRC</span>
+                    <select id="grc-category-filter" aria-label="กรองตามหมวด GRC"></select>
+                  </label>
+                  <label class="grc-filter-field">
+                    <span class="sr-only">กรองตามสถานะผลการดำเนินงาน</span>
+                    <select id="grc-status-filter" aria-label="กรองตามสถานะผลการดำเนินงาน"></select>
+                  </label>
+                </div>
+                <div class="grc-indicator-results-heading">
+                  <h2>รายการตัวชี้วัดทั้งหมด</h2>
+                  <span id="grc-indicator-result-count">แสดง 0 ตัวชี้วัด</span>
+                </div>
+                <div id="grc-indicator-list" class="grc-indicator-list" aria-live="polite"></div>
+              </div>
+            </section>
+
+            <div class="grc-page-support-grid">
+              <section class="grc-support-card" aria-labelledby="grc-distribution-heading">
+                <div class="grc-support-heading">
+                  <h2 id="grc-distribution-heading">สถานะการดำเนินงาน</h2>
+                  <p>Performance Status Distribution</p>
+                </div>
+                <div id="grc-status-distribution" class="grc-status-distribution" aria-live="polite"></div>
+              </section>
+
+              <section class="grc-support-card" aria-labelledby="grc-latest-heading">
+                <div class="grc-support-heading">
+                  <h2 id="grc-latest-heading">อัปเดตล่าสุดตามตัวชี้วัด</h2>
+                  <p>Latest Indicator Updates</p>
+                </div>
+                <div id="grc-latest-updates" class="grc-latest-updates" aria-live="polite"></div>
+              </section>
+            </div>
+
+            <aside class="grc-page-note">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 11v5M12 8h.01"></path>
+              </svg>
+              <p>ข้อมูลหน้านี้แสดงตามชุดข้อมูล GRC ล่าสุดที่ระบบได้รับ</p>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section id="kri-dashboard-view" class="subpage-view kri-dashboard-view" aria-labelledby="kri-dashboard-title" hidden>
+        <div class="detail-toolbar">
+          <button id="kri-dashboard-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span>กลับหน้าหลัก</span>
+          </button>
+        </div>
+
+        <header class="kri-dashboard-header">
+          <div class="kri-dashboard-header-copy">
+            <p class="section-kicker">ENTERPRISE RISK MONITORING</p>
+            <h1 id="kri-dashboard-title">ENTERPRISE RISK MANAGEMENT (ERM) DASHBOARD</h1>
+            <p>ภาพรวมตัวชี้วัดความเสี่ยงสำคัญของ กนอ. ตามระดับความเสี่ยงและผลการดำเนินงาน</p>
+          </div>
+          <div id="kri-dashboard-summary" class="kri-dashboard-summary" aria-live="polite"></div>
+        </header>
+
+        <div id="kri-dashboard-empty" class="kri-dashboard-empty" hidden>
+          ยังไม่มีข้อมูล KRI สำหรับรอบนี้
+        </div>
+
+        <div id="kri-dashboard-content" class="kri-dashboard-content">
+          <section class="kri-matrix-section" aria-labelledby="kri-matrix-heading">
+            <div class="section-heading">
+              <div>
+                <h2 id="kri-matrix-heading">RISK MATRIX OVERVIEW</h2>
+                <p class="section-subtitle">ตำแหน่งของ KRI ใน Risk Matrix</p>
+              </div>
+              <div class="kri-risk-legend" aria-label="Risk matrix legend">
+                <span><i class="risk-dot risk-dot-low"></i>Low</span>
+                <span><i class="risk-dot risk-dot-medium"></i>Medium</span>
+                <span><i class="risk-dot risk-dot-high"></i>High</span>
+                <span><i class="risk-dot risk-dot-extreme"></i>Extreme</span>
+              </div>
+            </div>
+
+            <div class="kri-matrix-layout">
+              <div class="kri-matrix-shell">
+                <div id="kri-risk-matrix" class="kri-risk-matrix" aria-live="polite"></div>
+              </div>
+
+              <aside class="kri-performance-legend" aria-labelledby="kri-performance-legend-heading">
+                <h3 id="kri-performance-legend-heading">KRI PERFORMANCE LEVEL</h3>
+                <div id="kri-performance-legend-list"></div>
+              </aside>
+            </div>
+          </section>
+
+          <section class="kri-overview-section" aria-labelledby="kri-overview-heading">
+            <div class="section-heading">
+              <h2 id="kri-overview-heading">KRI OVERVIEW LIST</h2>
+            </div>
+            <div class="kri-overview-table-shell">
+              <div id="kri-overview-list" class="kri-overview-table" aria-live="polite"></div>
+            </div>
+          </section>
+
+          <section class="kri-insights-section" aria-labelledby="kri-insights-heading">
+            <div class="section-heading">
+              <h2 id="kri-insights-heading">INSIGHTS SUMMARY</h2>
+            </div>
+            <div id="kri-insights-summary" class="kri-insights-summary" aria-live="polite"></div>
+          </section>
+        </div>
+      </section>
+
+      <section id="kri-detail-view" class="subpage-view kri-detail-view" aria-labelledby="kri-detail-title" hidden>
+        <div class="detail-toolbar">
+          <button id="kri-detail-back" class="back-button" type="button">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m15 18-6-6 6-6"></path>
+            </svg>
+            <span id="kri-detail-back-label">กลับ</span>
+          </button>
+        </div>
+
+        <div id="kri-detail-content" class="kri-detail-content" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="เมนูหลัก">
+      <button id="nav-home" class="nav-item active" type="button" aria-current="page">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m3 11 9-8 9 8"></path>
+          <path d="M5 10v10h14V10M9 20v-6h6v6"></path>
+        </svg>
+        <span>หน้าหลัก</span>
+      </button>
+      <button id="nav-erm" class="nav-item" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3 5 6v5c0 4.2 2.8 8 7 10 4.2-2 7-5.8 7-10V6l-7-3Z"></path>
+          <path d="M9 12h6M12 9v6"></path>
+        </svg>
+        <span>ERM</span>
+      </button>
+      <button id="nav-reports" class="nav-item" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M6 3h12v18l-6-3-6 3V3Z"></path>
+        </svg>
+        <span>Reports</span>
+      </button>
+      <button id="nav-watchlist" class="nav-item" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path>
+        </svg>
+        <span>Watchlist</span>
+      </button>
+    </nav>
+  </div>
+
+  <script src="./app.js?v=50" defer></script>
+</body>
+</html>
